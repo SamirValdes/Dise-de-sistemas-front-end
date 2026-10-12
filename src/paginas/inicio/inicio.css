@@ -1,0 +1,349 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@300;400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0d0d12; /* Fondo muy oscuro, casi negro */
+  color: #ffffff;
+}
+
+/* --- BARRA DE NAVEGACIÓN --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 5%;
+  background-color: rgba(13, 13, 18, 0.9);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.logo-icon {
+  background-color: #ff5c5c;
+  border-radius: 50%;
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-highlight {
+  color: #ff5c5c;
+  font-style: italic;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: #ff5c5c;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+/* --- BOTONES GLOBALES --- */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-text { background: none; border: none; color: #cccccc; font-size: 0.9rem; }
+.btn-primary { background-color: #ff5c5c; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-size: 0.9rem; }
+.btn-primary:hover { background-color: #ff4242; }
+.btn-outline { background: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 0.6rem 1.2rem; border-radius: 6px; font-size: 0.9rem; }
+.btn-outline:hover { border-color: white; }
+.large { padding: 0.8rem 1.8rem; font-size: 1rem; }
+
+/* --- HERO SECTION --- */
+.hero-section {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 5%;
+  background-image: url('/fondo.png '); /* Tu imagen va aquí */
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to right, #0d0d12 20%, rgba(13, 13, 18, 0.6) 60%, rgba(13, 13, 18, 0.2) 100%);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative; z-index: 2; max-width: 600px; margin-top: 50px;
+}
+
+.season-subtitle { color: #ff5c5c; font-size: 0.8rem; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+.season-subtitle .line { display: inline-block; width: 30px; height: 1px; background-color: #ff5c5c; }
+.hero-title { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: 1.1; margin-bottom: 1.5rem; }
+.hero-title-cursive { color: #ff5c5c; font-style: italic; font-weight: 600; }
+.hero-description { color: #cccccc; font-size: 1.1rem; line-height: 1.6; margin-bottom: 2.5rem; }
+.hero-buttons { display: flex; gap: 1rem; }
+
+/* =========================================
+   NUEVO: SECCIÓN PRÓXIMAS FUNCIONES
+   ========================================= */
+
+.upcoming-shows {
+  padding: 5rem 5%;
+  background-color: #0d0d12;
+}
+
+/* Título y Buscador */
+.section-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle-text {
+  color: #8a8a98;
+  font-size: 0.9rem;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a24;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  width: 250px;
+}
+
+.search-icon {
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  opacity: 0.6;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: white;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+/* Filtros (Píldoras) */
+.filters-container {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  background-color: #1a1a24;
+  color: #a0a0b0;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.filter-pill:hover {
+  background-color: #252535;
+}
+
+.filter-pill.active {
+  background-color: #ff5c5c;
+  color: white;
+}
+
+/* Cuadrícula de Tarjetas */
+.cards-grid {
+  display: grid;
+  /* Obligamos a que la cuadrícula tenga exactamente 3 columnas del mismo ancho */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem; /* Restauramos un poco el espacio para que respiren bien */
+}
+
+/* Estructura de la Tarjeta */
+.card {
+  background-color: #17151e; /* Fondo de la tarjeta según el diseño */
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+/* Espacio donde irán las imágenes */
+.card-image-placeholder {
+  position: relative;
+  height: 200px;
+  background-color: #23202e; /* Gris oscuro para rellenar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-comment {
+  color: #555566;
+  font-style: italic;
+}
+
+/* Etiquetas sobre la imagen */
+.tag-category {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.tag-status {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: rgba(20, 20, 25, 0.8);
+  color: #22c55e; /* Verde brillante */
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Contenido de la Tarjeta */
+.card-content {
+  padding: 1.2rem; /* Un poco menos de padding interior */
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; /* Letra un poquito más pequeña */
+  margin-bottom: 0.3rem;
+}
+
+.card-desc {
+  color: #8a8a98;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-info-list {
+  list-style: none;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-info-list li {
+  color: #a0a0b0;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  opacity: 0.7;
+}
+
+/* Pie de la tarjeta (Precio y Botones) */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.2rem;
+}
+
+.price-info strong {
+  font-size: 1.1rem; /* El precio un poco más proporcionado */
+  color: white;
+}
+
+.price-info strong {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-outline-small {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.btn-primary-small {
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+/* Modificación para el estado "Próximamente" */
+.tag-status.soon {
+  color: #ef4444; /* Rojo para Próximamente */
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* =========================================
+   FOOTER
+   ========================================= */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem 5%;
+  background-color: #0d0d12;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.copyright {
+  color: #8a8a98;
+  font-size: 0.8rem;
+}
