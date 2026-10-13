@@ -1,0 +1,383 @@
+
+.dashboard-wrapper {
+  background-color: #0d0d12;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.dash-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #110f18;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dash-top-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 0.9rem;
+  color: #8a8a98;
+}
+
+.dash-top-links span:not(.avatar) {
+  cursor: pointer;
+}
+
+.active-link {
+  color: #ff5c5c !important;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  margin-left: 1rem;
+}
+
+.avatar {
+  background-color: rgba(255, 92, 92, 0.2);
+  color: #ff5c5c;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+}
+
+
+.dash-body {
+  display: flex;
+  flex: 1;
+}
+
+.dash-sidebar {
+  width: 260px;
+  background-color: #110f18;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar-menu {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-title {
+  color: #8a8a98;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+}
+
+.sidebar-item {
+  background: transparent;
+  border: none;
+  color: #8a8a98;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.95rem;
+}
+
+.sidebar-item.active {
+  background-color: rgba(255, 92, 92, 0.1);
+  color: #ff5c5c;
+}
+
+.sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #8a8a98;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+}
+
+
+.dash-main {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+}
+
+.dash-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.dash-subtitle {
+  color: #8a8a98;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/*Tarjetas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background-color: #161420;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-label {
+  color: #8a8a98;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.stat-icon {
+  background-color: rgba(255, 92, 92, 0.1);
+  color: #ff5c5c;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.stat-trend {
+  font-size: 0.8rem;
+  color: #8a8a98;
+}
+
+.stat-trend.positive {
+  color: #22c55e;
+}
+
+/* Paneles compartidos */
+.charts-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-panel, .events-panel, .recent-panel {
+  background-color: #161420;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.panel-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.panel-subtitle {
+  font-size: 0.8rem;
+  color: #8a8a98;
+}
+
+/* Gráfico de barras manual */
+.bar-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 250px;
+  padding-top: 2rem;
+}
+
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.bar {
+  width: 80%;
+  background-color: #b95d5d; 
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.bar:hover {
+  background-color: #ff5c5c;
+}
+
+.bar-val {
+  font-size: 0.75rem;
+  color: #8a8a98;
+}
+
+.bar-label {
+  font-size: 0.75rem;
+  color: #8a8a98;
+  margin-top: 0.5rem;
+}
+
+/* Lista de eventos */
+.events-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.events-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ev-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.ev-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+.ev-dot.green { background-color: #22c55e; }
+.ev-dot.red { background-color: #ff5c5c; }
+
+.ev-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.ev-tickets {
+  font-size: 0.8rem;
+  color: #8a8a98;
+}
+
+.badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-active {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-soon {
+  background-color: rgba(255, 92, 92, 0.1);
+  color: #ff5c5c;
+  border: 1px solid rgba(255, 92, 92, 0.2);
+}
+
+/*Tabla de compras*/
+.recent-panel {
+  min-height: 150px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.recent-table th {
+  color: #8a8a98;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.recent-table td {
+  padding: 1.2rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.recent-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tx-code {
+  color: #ff5c5c;
+  font-family: monospace;
+  font-size: 0.85rem !important;
+}
+
+.tx-seats, .tx-date {
+  color: #a0a0b0;
+}
+
+.tx-total {
+  font-weight: 600;
+}

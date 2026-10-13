@@ -20,11 +20,11 @@ const InicioSesion = () => {
   return (
     <div className={styles.loginPage}>
       
-      {/* --- BARRA DE NAVEGACIÓN --- */}
+
       <header className={styles.navbar}>
         <div className={styles.logoContainer}>
           <div className={styles.logoIcon}>
-            {/* Aquí reemplazamos la casita por el SVG */}
+
             <svg viewBox="0 0 24 24" fill="white" width="20px" height="20px">
               <path d="M12 3L4 9v12h16V9l-8-6zm0 2.5l6 4.5v9h-12v-9l6-4.5z"/>
             </svg>

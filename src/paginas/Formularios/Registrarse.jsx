@@ -30,7 +30,7 @@ const Registrarse = () => {
       return;
     }
     console.log('Registrando usuario:', { fullName, email, password });
-    // Redirige a la raíz (Cartelera) después de registrarse
+
     navigate('/');
   };
 
@@ -46,10 +46,10 @@ const Registrarse = () => {
         </Link>
         
         <div className={styles.navActions}>
-          {/* Corregido: Apunta a la raíz (localhost:5173/) */}
+
           <Link to="/" className={styles.navLink}>Cartelera</Link>
           
-          {/* Corregido: Apunta a /login en lugar de /iniciar-sesion */}
+
           <Link to="/login" className={styles.navLink}>Iniciar sesión</Link>
           
           <button className={styles.navRegisterBtn}>Registrarse</button>
@@ -123,7 +123,7 @@ const Registrarse = () => {
 
         <div className={styles.footerLink}>
           <p className={styles.loginText}>
-            {/* Corregido: Apunta a /login en lugar de /iniciar-sesion */}
+
             ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link>
           </p>
         </div>
