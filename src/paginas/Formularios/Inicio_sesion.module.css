@@ -1,92 +1,20 @@
+/*
+ * El encabezado de esta página lo pone ahora el componente <Navbar /> compartido y
+ * los colores salen de las variables globales, para que el login no se vea de un
+ * tono distinto al resto de la aplicación.
+ */
 .loginPage {
   min-height: 100vh;
   width: 100%;
-  background: radial-gradient(circle at center, #1a151d 0%, #0d0b0e 100%); /* Degradado oscuro del diseño */
+  padding: calc(var(--altura-navbar) + 3rem) 5% 4rem;
+  background: radial-gradient(circle at center, #1a151d 0%, #0d0b0e 100%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #ffffff;
-  padding: 40px 20px;
-  box-sizing: border-box;
-}
-
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 20px 40px;
-  box-sizing: border-box;
-  position: absolute; 
-  top: 0;
-  left: 0;
-}
-
-.logoContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logoIcon {
-  background-color: #e55c54;
-  padding: 6px;
-  border-radius: 50%;
-  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  color: var(--texto);
+  box-sizing: border-box;
 }
-
-.logoText {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.logoHighlight {
-  color: #e55c54;
-  font-family: 'Times New Roman', Times, serif; 
-}
-
-.navLinks {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.navLink, .btnText {
-  color: #a097a5;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.2s;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.navLink:hover, .btnText:hover {
-  color: white;
-}
-
-.btnPrimary {
-  background-color: #e55c54;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s;
-}
-
-.btnPrimary:hover {
-  background-color: #cc4f48;
-}
-
 
 .mainContent {
   display: flex;
@@ -94,11 +22,10 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 440px; 
+  max-width: 440px;
   text-align: center;
   gap: 24px;
 }
-
 
 .logoAndText {
   display: flex;
@@ -115,42 +42,41 @@
 }
 
 .logoCircle {
-  background-color: #e55c54;
+  background-color: var(--acento);
   padding: 6px;
   border-radius: 50%;
-  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .brandTitle {
+  font-family: 'Playfair Display', serif;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
 .brandTitle span {
-  color: #e55c54;
-  font-family: 'Times New Roman', Times, serif; 
+  color: var(--acento);
+  font-style: italic;
 }
 
 .welcomeText {
+  font-family: 'Playfair Display', serif;
   font-size: 2rem;
   font-weight: 600;
   margin: 0;
-  font-family: 'Times New Roman', Times, serif; 
 }
 
 .subWelcome {
   font-size: 0.95rem;
-  color: #a097a5;
+  color: var(--apagado);
   margin: 0;
 }
 
-
 .loginFormContainer {
-  background-color: #151118;
-  border: 1px solid #231b26;
+  background-color: var(--tarjeta);
+  border: 1px solid var(--borde);
   border-radius: 12px;
   padding: 32px;
   width: 100%;
@@ -161,7 +87,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  text-align: left; 
+  text-align: left;
 }
 
 .inputGroup {
@@ -172,7 +98,7 @@
 
 .inputGroup label {
   font-size: 0.9rem;
-  color: #ffffff;
+  color: var(--texto);
   font-weight: 500;
 }
 
@@ -180,21 +106,34 @@
   background-color: #1e1922;
   border: 1px solid #332938;
   border-radius: 6px;
-  color: #ffffff;
+  color: var(--texto);
   padding: 12px;
   font-size: 0.95rem;
+  font-family: inherit;
   outline: none;
   transition: border 0.2s;
 }
 
 .inputGroup input:focus {
-  border-color: #e55c54;
+  border-color: var(--acento);
 }
 
+/* Aviso de credenciales incorrectas, en sustitución del alert() anterior. */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--acento-suave);
+  border: 1px solid var(--acento-borde);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--acento);
+}
 
 .submitBtn {
-  background-color: #e55c54;
-  color: #ffffff;
+  background-color: var(--acento);
+  color: var(--texto);
   border: none;
   border-radius: 6px;
   padding: 12px;
@@ -205,31 +144,44 @@
   margin-top: 8px;
 }
 
-.submitBtn:hover {
-  background-color: #cc4f48;
+.submitBtn:hover:not(:disabled) {
+  background-color: var(--acento-hover);
 }
 
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .credentialsBox {
-  background-color: #1b161f;
-  border: 1px solid #261f2c;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--borde);
   border-radius: 6px;
   padding: 12px;
   font-size: 0.8rem;
-  color: #a097a5;
+  color: var(--apagado);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.credentialsBox p:first-child {
+  color: var(--apagado-claro);
+  font-weight: 600;
+}
+
+.credencial {
+  font-family: monospace;
+}
+
 .registerLink {
   font-size: 0.9rem;
-  color: #a097a5;
+  color: var(--apagado);
   margin-top: 8px;
 }
 
 .registerLink a {
-  color: #e55c54;
+  color: var(--acento);
   text-decoration: none;
   font-weight: 500;
 }

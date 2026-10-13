@@ -1,17 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@300;400;600&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #0d0d12; 
-  color: #ffffff;
-}
-
+/*
+ * El reset, la tipografía y las fuentes se movieron a src/index.css e index.html para
+ * que los hereden todas las páginas y no solo esta. El encabezado de la página lo pone
+ * ahora el componente <Navbar /> compartido.
+ */
 
 .navbar {
   display: flex;
@@ -83,7 +74,7 @@ button {
   display: flex;
   align-items: center;
   padding: 0 5%;
-  background-image: url('/fondo.png '); /* Tu imagen va aquí */
+  background-image: url('/fondo.png'); /* Imagen de fondo del teatro */
   background-size: cover;
   background-position: center;
 }
@@ -304,6 +295,7 @@ button {
   gap: 0.5rem;
 }
 
+/* Ahora es un <Link>, así que hace falta quitarle el subrayado y darle cuerpo de botón. */
 .btn-outline-small {
   background: transparent;
   color: white;
@@ -311,6 +303,9 @@ button {
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  text-decoration: none;
 }
 
 .btn-primary-small {
@@ -342,4 +337,46 @@ button {
 .copyright {
   color: #8a8a98;
   font-size: 0.8rem;
+}
+
+
+/* Botón de favorito sobre la tarjeta. Solo aparece con sesión iniciada. */
+.btn-favorito {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  color: #ff5c5c;
+  padding: 0;
+}
+
+.btn-favorito:hover {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+
+/* Estado vacío cuando la búsqueda o el filtro no devuelven nada. */
+.sin-resultados {
+  text-align: center;
+  padding: 5rem 1rem;
+}
+
+.sin-resultados-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.sin-resultados-texto {
+  color: #8a8a98;
+  font-size: 0.9rem;
 }

@@ -1,0 +1,66 @@
+/*
+ * Estilos globales de la aplicación.
+ * Las fuentes se cargan desde index.html.
+ * Los colores viven aquí como variables para no repetir hexadecimales por página.
+ */
+:root {
+  --bg: #0d0d12;
+  --bg-panel: #110f18;
+  --tarjeta: #161420;
+  --tarjeta-alt: #17151e;
+  --tarjeta-hover: #1a1a24;
+  --acento: #ff5c5c;
+  --acento-hover: #ff4242;
+  --acento-suave: rgba(255, 92, 92, 0.1);
+  --acento-borde: rgba(255, 92, 92, 0.3);
+  --texto: #ffffff;
+  --apagado: #8a8a98;
+  --apagado-claro: #a0a0b0;
+  --exito: #22c55e;
+  --exito-suave: rgba(34, 197, 94, 0.1);
+  --borde: rgba(255, 255, 255, 0.05);
+  --borde-medio: rgba(255, 255, 255, 0.12);
+  --borde-fuerte: rgba(255, 255, 255, 0.2);
+  --altura-navbar: 4.5rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+a {
+  transition: color 0.2s ease;
+}
+
+/*
+ * Cada página que se dibuja debajo de la navbar fija necesita este relleno.
+ * La navbar mide --altura-navbar, así que una sola clase evita repetir el cálculo.
+ */
+.pagina {
+  min-height: 100vh;
+  padding-top: var(--altura-navbar);
+}
+
+/* Contenedor centrado, equivalente al max-w-7xl del diseño de Figma. */
+.contenedor {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5%;
+}

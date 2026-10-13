@@ -1,0 +1,227 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: rgba(13, 13, 18, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+
+.interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1200px;
+  height: var(--altura-navbar);
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+/* --- Marca --- */
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoIcono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--acento);
+  flex-shrink: 0;
+}
+
+.logoTexto {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--texto);
+  white-space: nowrap;
+}
+
+.logoAcento {
+  color: var(--acento);
+  font-style: italic;
+}
+
+/* --- Enlaces de escritorio --- */
+.enlaces {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+}
+
+.enlace {
+  background: none;
+  border: none;
+  color: var(--apagado);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.enlace:hover {
+  color: var(--texto);
+}
+
+.enlaceActivo {
+  color: var(--acento);
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--borde);
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--acento-suave);
+  border: 1px solid var(--acento-borde);
+  color: var(--acento);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.nombre {
+  font-size: 0.9rem;
+  color: var(--apagado-claro);
+}
+
+.btnSalir {
+  background: transparent;
+  border: 1px solid var(--borde-fuerte);
+  color: var(--apagado-claro);
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.btnSalir:hover {
+  color: var(--texto);
+  border-color: var(--apagado);
+}
+
+.btnRegistro {
+  background-color: var(--acento);
+  color: white;
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btnRegistro:hover {
+  background-color: var(--acento-hover);
+}
+
+/* --- Móvil --- */
+.hamburguesa {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--apagado-claro);
+  padding: 0.4rem;
+}
+
+.menuMovil {
+  display: none;
+  flex-direction: column;
+  padding: 1rem 5% 1.5rem;
+  border-top: 1px solid var(--borde);
+  background-color: var(--bg);
+}
+
+.enlaceMovil {
+  display: block;
+  padding: 0.7rem 0;
+  color: var(--apagado-claro);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.enlaceMovil:hover {
+  color: var(--texto);
+}
+
+.separador {
+  height: 1px;
+  background-color: var(--borde);
+  margin: 0.75rem 0;
+}
+
+.salirMovil {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.7rem 0;
+  color: var(--acento);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.accionesMovil {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btnMovilClaro,
+.btnMovilAcento {
+  flex: 1;
+  text-align: center;
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btnMovilClaro {
+  border: 1px solid var(--borde-fuerte);
+  color: var(--texto);
+}
+
+.btnMovilAcento {
+  background-color: var(--acento);
+  color: white;
+}
+
+@media (max-width: 860px) {
+  .enlaces {
+    display: none;
+  }
+
+  .hamburguesa {
+    display: block;
+  }
+
+  .menuMovil {
+    display: flex;
+  }
+}

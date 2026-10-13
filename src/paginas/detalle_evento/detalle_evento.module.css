@@ -1,0 +1,374 @@
+.pagina {
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* --- Portada --- */
+.portada {
+  position: relative;
+  height: 380px;
+  margin-top: var(--altura-navbar);
+  overflow: hidden;
+}
+
+/* Recuadro de sustitución: el proyecto todavía no tiene imágenes de evento. */
+.portadaFondo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #23202e;
+  background-image: linear-gradient(135deg, #2a2536 0%, #1a1721 55%, #12101a 100%);
+}
+
+.portadaCategoria {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.07);
+  user-select: none;
+}
+
+.portadaDegradado {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--bg) 4%, rgba(13, 13, 18, 0.55) 55%, rgba(13, 13, 18, 0.25) 100%);
+}
+
+.volver {
+  position: absolute;
+  top: 1.5rem;
+  left: 5%;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.volver:hover {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.portadaAcciones {
+  position: absolute;
+  top: 1.5rem;
+  right: 5%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.etiquetaEstado {
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+}
+
+.btnFavorito {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  color: var(--acento);
+}
+
+.btnFavorito:hover {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+
+.portadaTexto {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 5% 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700;
+  color: var(--texto);
+  margin-bottom: 0.5rem;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  color: var(--apagado-claro);
+}
+
+/* --- Cuerpo --- */
+.interior {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 5% 0;
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.columnaInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.columnaAsientos {
+  min-width: 0;
+}
+
+.tarjeta {
+  background-color: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tarjetaTitulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+/* --- Filas de información --- */
+.filaDato,
+.filaPrecio {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filaEtiqueta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--apagado);
+  flex-shrink: 0;
+}
+
+.filaValor {
+  font-size: 0.8rem;
+  color: var(--texto);
+  text-align: right;
+}
+
+.precioValor {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.recargo {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--acento);
+  background-color: var(--acento-suave);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.notaPrecio {
+  font-size: 0.75rem;
+  color: var(--apagado);
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--borde);
+}
+
+.sinopsis {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--apagado);
+}
+
+/* --- Zona de asientos --- */
+.cabeceraAsientos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.btnLimpiar {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--apagado);
+}
+
+.btnLimpiar:hover {
+  color: var(--acento);
+}
+
+.aviso {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--acento);
+  text-align: center;
+}
+
+.pieAsientos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--borde);
+}
+
+.pieCantidad {
+  font-size: 0.8rem;
+  color: var(--apagado);
+}
+
+.pieTotal {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.pieImporte {
+  color: var(--acento);
+}
+
+.btnComprar {
+  background-color: var(--acento);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btnComprar:hover {
+  background-color: var(--acento-hover);
+}
+
+/* --- Invitación a iniciar sesión --- */
+.invitacion {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.invitacionIcono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--acento-suave);
+  color: var(--acento);
+  margin: 0 auto 1rem;
+}
+
+.invitacionTitulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--texto);
+  margin-bottom: 0.5rem;
+}
+
+.invitacionTexto {
+  font-size: 0.85rem;
+  color: var(--apagado);
+  max-width: 340px;
+  margin: 0 auto 1.5rem;
+}
+
+.invitacionBotones {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimario,
+.btnSecundario {
+  padding: 0.6rem 1.35rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btnPrimario {
+  background-color: var(--acento);
+  color: white;
+}
+
+.btnPrimario:hover {
+  background-color: var(--acento-hover);
+}
+
+.btnSecundario {
+  border: 1px solid var(--borde-fuerte);
+  color: var(--apagado-claro);
+}
+
+.btnSecundario:hover {
+  color: var(--texto);
+  border-color: var(--apagado);
+}
+
+/* --- Adaptación --- */
+@media (max-width: 900px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .columnaAsientos {
+    order: -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .portada {
+    height: 300px;
+  }
+
+  .pieAsientos {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btnComprar {
+    width: 100%;
+  }
+}

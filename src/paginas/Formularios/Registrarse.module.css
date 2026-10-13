@@ -1,193 +1,168 @@
+/*
+ * Mismo criterio que en el login: el encabezado lo pone <Navbar /> y los colores
+ * salen de las variables globales.
+ */
 .registerPage {
-  background-color: #0b090c;
   min-height: 100vh;
-  color: #ffffff;
-  font-family: sans-serif;
-}
-
-
-.navbar {
+  width: 100%;
+  padding: calc(var(--altura-navbar) + 3rem) 5% 4rem;
+  background: radial-gradient(circle at center, #1a151d 0%, #0d0b0e 100%);
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 15px 40px;
-  background-color: #0b090c;
-  border-bottom: 1px solid #231c26;
+  justify-content: center;
+  color: var(--texto);
+  box-sizing: border-box;
 }
-
-.navBrand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none; 
-  color: #ffffff; 
-}
-
-.navActions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.navLink {
-  color: #9ca3af;
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.navLink:hover {
-  color: #ffffff;
-}
-
-.navRegisterBtn {
-  background-color: #e56056;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.navRegisterBtn:hover {
-  background-color: #d45248;
-}
-
 
 .mainContent {
   display: flex;
-  flex-direction: column; 
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 60px 20px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  gap: 24px;
 }
-
 
 .pageHeader {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 30px;
+  gap: 8px;
 }
 
 .centerBrand {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
-  text-decoration: none; 
-  color: #ffffff; 
+  margin-bottom: 8px;
+  text-decoration: none;
 }
 
 .logoCircle {
-  background-color: #e56056;
-  width: 32px;
-  height: 32px;
+  background-color: var(--acento);
+  padding: 6px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 .brandTitle {
-  font-size: 20px;
-  font-weight: bold;
-  font-family: 'Times New Roman', Times, serif; 
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--texto);
 }
 
 .brandTitle span {
-  color: #e56056;
+  color: var(--acento);
+  font-style: italic;
 }
 
 .welcomeText {
-  text-align: center;
-  font-size: 32px; 
-  margin-bottom: 8px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .subWelcome {
-  text-align: center;
-  color: #9ca3af;
-  font-size: 15px;
+  font-size: 0.95rem;
+  color: var(--apagado);
   margin: 0;
 }
 
 .registerFormContainer {
-  background-color: #141018;
-  border: 1px solid #231c26;
+  background-color: var(--tarjeta);
+  border: 1px solid var(--borde);
   border-radius: 12px;
-  padding: 30px 40px;
+  padding: 32px;
   width: 100%;
-  max-width: 480px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
 }
 
 .form {
   display: flex;
   flex-direction: column;
+  gap: 18px;
+  text-align: left;
 }
 
 .inputGroup {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .inputGroup label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--texto);
+  font-weight: 500;
 }
 
 .inputGroup input {
-  width: 100%;
-  padding: 12px;
-  background-color: #1a1520;
-  border: 1px solid #2a2230;
+  background-color: #1e1922;
+  border: 1px solid #332938;
   border-radius: 6px;
-  color: white;
+  color: var(--texto);
+  padding: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
   outline: none;
-  box-sizing: border-box; 
+  transition: border 0.2s;
 }
 
 .inputGroup input:focus {
-  border-color: #e56056;
+  border-color: var(--acento);
+}
+
+/* Errores de validación en pantalla, en sustitución del alert() anterior. */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--acento-suave);
+  border: 1px solid var(--acento-borde);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--acento);
 }
 
 .submitBtn {
-  width: 100%;
-  padding: 12px;
-  background-color: #e56056;
-  color: white;
+  background-color: var(--acento);
+  color: var(--texto);
   border: none;
   border-radius: 6px;
-  font-weight: bold;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 10px;
   transition: background-color 0.2s;
+  margin-top: 8px;
 }
 
-.submitBtn:hover {
-  background-color: #d45248;
+.submitBtn:hover:not(:disabled) {
+  background-color: var(--acento-hover);
 }
 
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .footerLink {
-  margin-top: 30px;
-}
-
-.loginText {
-  text-align: center;
-  font-size: 14px;
-  color: #9ca3af;
+  font-size: 0.9rem;
+  color: var(--apagado);
+  margin-top: 8px;
 }
 
 .loginText a {
-  color: #e56056;
+  color: var(--acento);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .loginText a:hover {
