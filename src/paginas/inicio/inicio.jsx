@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // <-- Importación de Link
+import { Link } from 'react-router-dom'; 
 import './inicio.css';
 
-// Lista completa de 6 eventos
+
 const eventos = [
   {
     id: 1,
@@ -75,7 +75,7 @@ const eventos = [
 function Inicio() {
   return (
     <div className="app-container">
-      {/* --- BARRA DE NAVEGACIÓN --- */}
+
       <header className="navbar">
         <div className="logo-container">
           <div className="logo-icon">
@@ -88,12 +88,11 @@ function Inicio() {
         <nav className="nav-links">
           <a href="#cartelera" className="nav-link">Cartelera</a>
           <Link to="/login" className="btn-text">Iniciar sesión</Link>
-          {/* --- CAMBIO: Botón de registro en la barra superior --- */}
+
           <Link to="/registro" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>Registrarse</Link>
         </nav>
       </header>
 
-      {/* --- HERO SECTION --- */}
       <main className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
@@ -110,13 +109,13 @@ function Inicio() {
           </p>
           <div className="hero-buttons">
             <button className="btn-primary large">Ver cartelera</button>
-            {/* --- CAMBIO: Botón de registro en el centro --- */}
+
             <Link to="/registro" className="btn-outline large" style={{ textDecoration: 'none', display: 'inline-block' }}>Registrarse</Link>
           </div>
         </div>
       </main>
 
-      {/* --- PRÓXIMAS FUNCIONES --- */}
+
       <section className="upcoming-shows" id="cartelera">
         
         <div className="section-top">
@@ -146,7 +145,7 @@ function Inicio() {
               
               <div className="card-image-placeholder">
                 <span className="tag-category">{evento.categoria}</span>
-                {/* Condicional para aplicar la clase "soon" si está próximamente */}
+
                 <span className={`tag-status ${evento.estado === 'Próximamente' ? 'soon' : ''}`}>
                   {evento.estado}
                 </span>
@@ -169,7 +168,7 @@ function Inicio() {
                   </div>
                   <div className="card-buttons">
                     <button className="btn-outline-small">Detalles</button>
-                    {/* El botón de comprar solo se muestra si el estado es "En venta" */}
+
                     {evento.estado === 'En venta' && (
                       <button className="btn-primary-small">Comprar</button>
                     )}

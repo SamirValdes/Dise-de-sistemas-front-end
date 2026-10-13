@@ -1,4 +1,3 @@
-/* Contenedor principal de toda la pantalla */
 .loginPage {
   min-height: 100vh;
   width: 100%;
@@ -13,7 +12,7 @@
   box-sizing: border-box;
 }
 
-/* --- ESTILOS DE LA BARRA DE NAVEGACIÓN --- */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -21,7 +20,7 @@
   width: 100%;
   padding: 20px 40px;
   box-sizing: border-box;
-  position: absolute; /* Mantiene la barra arriba sin empujar el formulario */
+  position: absolute; 
   top: 0;
   left: 0;
 }
@@ -88,19 +87,19 @@
   background-color: #cc4f48;
 }
 
-/* Área que contiene el logo, el form y el registro en columna */
+
 .mainContent {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 440px; /* Ancho máximo para que no se estire demasiado */
+  max-width: 440px; 
   text-align: center;
   gap: 24px;
 }
 
-/* Logo y Texto */
+
 .logoAndText {
   display: flex;
   flex-direction: column;
@@ -132,14 +131,14 @@
 
 .brandTitle span {
   color: #e55c54;
-  font-family: 'Times New Roman', Times, serif; /* Fuente elegante añadida */
+  font-family: 'Times New Roman', Times, serif; 
 }
 
 .welcomeText {
   font-size: 2rem;
   font-weight: 600;
   margin: 0;
-  font-family: 'Times New Roman', Times, serif; /* Fuente elegante añadida */
+  font-family: 'Times New Roman', Times, serif; 
 }
 
 .subWelcome {
@@ -148,7 +147,7 @@
   margin: 0;
 }
 
-/* Caja oscura que contiene al formulario */
+
 .loginFormContainer {
   background-color: #151118;
   border: 1px solid #231b26;
@@ -162,7 +161,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  text-align: left; /* Deja los textos dentro de la caja alineados a la izquierda */
+  text-align: left; 
 }
 
 .inputGroup {
@@ -192,7 +191,7 @@
   border-color: #e55c54;
 }
 
-/* Botón de inicio de sesión */
+
 .submitBtn {
   background-color: #e55c54;
   color: #ffffff;
@@ -210,7 +209,7 @@
   background-color: #cc4f48;
 }
 
-/* Caja de las credenciales */
+
 .credentialsBox {
   background-color: #1b161f;
   border: 1px solid #261f2c;
@@ -223,7 +222,6 @@
   gap: 4px;
 }
 
-/* Registro abajo */
 .registerLink {
   font-size: 0.9rem;
   color: #a097a5;
