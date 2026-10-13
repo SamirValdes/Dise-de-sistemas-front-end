@@ -1,0 +1,198 @@
+.registerPage {
+  background-color: #0b090c;
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: sans-serif;
+}
+
+/* 1. Estilos para la nueva barra de navegación */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background-color: #0b090c;
+  border-bottom: 1px solid #231c26;
+}
+
+.navBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none; /* Nuevo: evita el subrayado del enlace */
+  color: #ffffff; /* Nuevo: mantiene el color blanco del texto */
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLink {
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: #ffffff;
+}
+
+.navRegisterBtn {
+  background-color: #e56056;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.navRegisterBtn:hover {
+  background-color: #d45248;
+}
+
+/* 2. El contenedor principal ahora apila los elementos verticalmente */
+.mainContent {
+  display: flex;
+  flex-direction: column; /* Apila el encabezado, el formulario y el pie de página */
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+/* 3. Estilos para el encabezado extraído */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.centerBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-decoration: none; /* Nuevo: evita el subrayado del enlace */
+  color: #ffffff; /* Nuevo: mantiene el color blanco del texto */
+}
+
+.logoCircle {
+  background-color: #e56056;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Eliminado el font-size de 14px ya que ahora es un SVG, no texto */
+}
+
+/* La referencia muestra una fuente tipo Serif para los títulos */
+.brandTitle {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'Times New Roman', Times, serif; 
+}
+
+.brandTitle span {
+  color: #e56056;
+}
+
+.welcomeText {
+  text-align: center;
+  font-size: 32px; /* Aumentado ligeramente para coincidir con el diseño */
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.subWelcome {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* 4. Contenedor del formulario limpio */
+.registerFormContainer {
+  background-color: #141018;
+  border: 1px solid #231c26;
+  border-radius: 12px;
+  padding: 30px 40px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 12px;
+  background-color: #1a1520;
+  border: 1px solid #2a2230;
+  border-radius: 6px;
+  color: white;
+  outline: none;
+  box-sizing: border-box; /* Evita que el padding desborde el ancho del input */
+}
+
+.inputGroup input:focus {
+  border-color: #e56056;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #e56056;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: #d45248;
+}
+
+/* 5. Pie de página extraído */
+.footerLink {
+  margin-top: 30px;
+}
+
+.loginText {
+  text-align: center;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.loginText a {
+  color: #e56056;
+  text-decoration: none;
+}
+
+.loginText a:hover {
+  text-decoration: underline;
+}

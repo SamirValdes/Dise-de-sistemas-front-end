@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './Registrarse.module.css';
+
+const HouseIcon = () => (
+  <svg 
+    viewBox="0 0 24 24" 
+    width="16" 
+    height="16" 
+    stroke="white" 
+    strokeWidth="2.5" 
+    fill="none" 
+    strokeLinejoin="round"
+  >
+    <polygon points="12 4 4 11 4 20 20 20 20 11" />
+  </svg>
+);
 
 const Registrarse = () => {
   const [fullName, setFullName] = useState('');
@@ -16,25 +29,47 @@ const Registrarse = () => {
       alert('Las contraseñas no coinciden');
       return;
     }
-    // Lógica de registro simulada
     console.log('Registrando usuario:', { fullName, email, password });
-    navigate('/cartelera');
+    // Redirige a la raíz (Cartelera) después de registrarse
+    navigate('/');
   };
 
   return (
     <div className={styles.registerPage}>
-      <Header />
-      <div className={styles.mainContent}>
-        <div className={styles.registerFormContainer}>
-          <div className={styles.logoAndText}>
-            <div className={styles.brand}>
-              <div className={styles.logoCircle}>🏠</div>
-              <h1 className={styles.brandTitle}>Teatro <span>Luminaria</span></h1>
-            </div>
-            <h2 className={styles.welcomeText}>Crea tu cuenta</h2>
-            <p className={styles.subWelcome}>Únete y descubre el mejor teatro</p>
+      
+      <nav className={styles.navbar}>
+        <Link to="/" className={styles.navBrand}>
+          <div className={styles.logoCircle}>
+            <HouseIcon />
           </div>
+          <h1 className={styles.brandTitle}>Teatro <span>Luminaria</span></h1>
+        </Link>
+        
+        <div className={styles.navActions}>
+          {/* Corregido: Apunta a la raíz (localhost:5173/) */}
+          <Link to="/" className={styles.navLink}>Cartelera</Link>
+          
+          {/* Corregido: Apunta a /login en lugar de /iniciar-sesion */}
+          <Link to="/login" className={styles.navLink}>Iniciar sesión</Link>
+          
+          <button className={styles.navRegisterBtn}>Registrarse</button>
+        </div>
+      </nav>
 
+      <div className={styles.mainContent}>
+        
+        <div className={styles.pageHeader}>
+          <Link to="/" className={styles.centerBrand}>
+            <div className={styles.logoCircle}>
+              <HouseIcon />
+            </div>
+            <h1 className={styles.brandTitle}>Teatro <span>Luminaria</span></h1>
+          </Link>
+          <h2 className={styles.welcomeText}>Crea tu cuenta</h2>
+          <p className={styles.subWelcome}>Únete y descubre el mejor teatro</p>
+        </div>
+
+        <div className={styles.registerFormContainer}>
           <form onSubmit={handleRegister} className={styles.form}>
             <div className={styles.inputGroup}>
               <label>Nombre completo</label>
@@ -84,11 +119,15 @@ const Registrarse = () => {
               Crear cuenta
             </button>
           </form>
+        </div>
 
-          <p className={styles.loginLink}>
-            ¿Ya tienes una cuenta? <a href="/iniciar-sesion">Inicia sesión</a>
+        <div className={styles.footerLink}>
+          <p className={styles.loginText}>
+            {/* Corregido: Apunta a /login en lugar de /iniciar-sesion */}
+            ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link>
           </p>
         </div>
+
       </div>
     </div>
   );
