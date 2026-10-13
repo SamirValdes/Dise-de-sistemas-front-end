@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // <-- Importación de Link
 import './inicio.css';
 
 // Lista completa de 6 eventos
@@ -86,8 +87,9 @@ function Inicio() {
         </div>
         <nav className="nav-links">
           <a href="#cartelera" className="nav-link">Cartelera</a>
-          <button className="btn-text">Iniciar sesión</button>
-          <button className="btn-primary">Registrarse</button>
+          <Link to="/login" className="btn-text">Iniciar sesión</Link>
+          {/* --- CAMBIO: Botón de registro en la barra superior --- */}
+          <Link to="/registro" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>Registrarse</Link>
         </nav>
       </header>
 
@@ -108,7 +110,8 @@ function Inicio() {
           </p>
           <div className="hero-buttons">
             <button className="btn-primary large">Ver cartelera</button>
-            <button className="btn-outline large">Registrarse</button>
+            {/* --- CAMBIO: Botón de registro en el centro --- */}
+            <Link to="/registro" className="btn-outline large" style={{ textDecoration: 'none', display: 'inline-block' }}>Registrarse</Link>
           </div>
         </div>
       </main>
