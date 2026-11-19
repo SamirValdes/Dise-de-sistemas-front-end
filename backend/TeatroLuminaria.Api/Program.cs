@@ -36,6 +36,12 @@ builder.Services.AddScoped<ServicioJwt>();
 builder.Services.AddScoped<TeatroLuminaria.Api.Compras.ServicioCompras>();
 builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Pasarela.IPasarelaPago, TeatroLuminaria.Api.Compras.Pasarela.AdaptadorPasarelaSimulada>();
 
+// Observer: ProcesadorPagos notifica a todos los IPagoListener registrados cuando un pago
+// se aprueba. El orden de registro es el orden en que se notifican.
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Observer.ProcesadorPagos>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Observer.IPagoListener, TeatroLuminaria.Api.Compras.Observer.ServicioNotificacionCorreo>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Observer.IPagoListener, TeatroLuminaria.Api.Compras.Observer.GeneradorBoletoDigital>();
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opciones =>

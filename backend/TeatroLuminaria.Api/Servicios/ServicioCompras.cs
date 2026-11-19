@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeatroLuminaria.Api.Compras.Estados;
+using TeatroLuminaria.Api.Compras.Observer;
 using TeatroLuminaria.Api.Compras.Pasarela;
 using TeatroLuminaria.Api.Datos;
 using TeatroLuminaria.Api.Dtos;
@@ -8,7 +9,7 @@ using TeatroLuminaria.Api.Servicios;
 
 namespace TeatroLuminaria.Api.Compras;
 
-public class ServicioCompras(AppDbContext contexto, IPasarelaPago pasarela)
+public class ServicioCompras(AppDbContext contexto, IPasarelaPago pasarela, ProcesadorPagos procesadorPagos)
 {
     public const int MaxAsientos = 8;
     public const decimal PorcentajeServicio = 0.05m;
@@ -170,6 +171,10 @@ public class ServicioCompras(AppDbContext contexto, IPasarelaPago pasarela)
         {
             throw ReglaNegocioException.Conflicto("Un asiento cambió de estado durante el pago.");
         }
+
+        // Observer: notifica (correo simulado, generación del boleto digital) ya con la
+        // compra pagada y confirmada. Si un listener fallara, la compra ya quedó registrada.
+        await procesadorPagos.NotificarPagoAprobadoAsync(compra, asientos);
 
         return new CompraRespuesta(compra.Id, evento.Id, subtotal, cargo, total, compra.Estado.ToString(), ids);
     }
