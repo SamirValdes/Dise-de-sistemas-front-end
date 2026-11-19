@@ -89,7 +89,7 @@ public class CambiarEstadoRequest
     public EstadoEvento Estado { get; set; }
 }
 
-public record AsientoRespuesta(string Fila, int Numero, string Zona, string Estado);
+public record AsientoRespuesta(string Fila, int Numero, string Zona, string Estado, decimal Precio);
 
 public record EventoListadoRespuesta(
     int Id,

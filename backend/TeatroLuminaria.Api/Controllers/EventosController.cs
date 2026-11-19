@@ -241,6 +241,17 @@ public class EventosController(AppDbContext contexto) : ControllerBase
         evento.Asientos
             .OrderBy(a => a.Fila)
             .ThenBy(a => a.Numero)
-            .Select(a => new AsientoRespuesta(a.Fila, a.Numero, a.Zona.ToString(), a.Estado.ToString()))
+            .Select(a => new AsientoRespuesta(
+                a.Fila,
+                a.Numero,
+                a.Zona.ToString(),
+                a.Estado.ToString(),
+                ObtenerEstrategia(a.Zona).CalcularPrecio(evento.PrecioBase)))
             .ToList());
+
+    private static readonly IEstrategiaPrecios EstrategiaGeneral = new PrecioGeneralStrategy();
+    private static readonly IEstrategiaPrecios EstrategiaVip = new PrecioVIPStrategy();
+
+    private static IEstrategiaPrecios ObtenerEstrategia(ZonaAsiento zona) =>
+        zona == ZonaAsiento.VIP ? EstrategiaVip : EstrategiaGeneral;
 }
