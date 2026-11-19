@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using TeatroLuminaria.Api.Datos;
 
 var builder = WebApplication.CreateBuilder(args);
 
 const string PoliticaCors = "FrontendCors";
 
 builder.Services.AddControllers();
+
+builder.Services.AddDbContext<AppDbContext>(opciones =>
+    opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(opciones =>
 {
