@@ -102,16 +102,6 @@ function DetalleEvento() {
   const { total } = calcularTotales(seleccionados, evento.precioBase);
   const enVenta = evento.estadoVenta === 'EnVenta';
 
-  // Adaptador para MapaAsientos, que todavía espera la forma del mock (asientosOcupados
-  // como lista de códigos "A1" y un campo "precio"). Se reemplaza por props mínimas en la Fase 4.
-  const eventoParaMapa = {
-    ...evento,
-    precio: evento.precioBase,
-    asientosOcupados: evento.asientos
-      .filter((asiento) => asiento.estado !== 'Disponible')
-      .map((asiento) => `${asiento.fila}${asiento.numero}`),
-  };
-
   const alPulsarAsiento = (asiento) => {
     const aceptado = alternarAsiento(evento.id, asiento);
     setAviso(aceptado ? '' : `Solo puedes elegir ${MAX_ASIENTOS} asientos por compra.`);
@@ -258,7 +248,8 @@ function DetalleEvento() {
               ) : (
                 <>
                   <MapaAsientos
-                    evento={eventoParaMapa}
+                    asientos={evento.asientos}
+                    precioBase={evento.precioBase}
                     seleccionados={seleccionados}
                     alAlternarAsiento={alPulsarAsiento}
                   />
