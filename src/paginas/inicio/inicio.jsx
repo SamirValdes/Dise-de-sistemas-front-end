@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
 import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
 import { etiquetaEstadoVenta, formatearPrecio } from '../../utilidades/precios';
@@ -31,7 +31,7 @@ const IconoCorazon = ({ relleno }) => (
 function Inicio() {
   const navegar = useNavigate();
   const { usuario, fijarRedireccionPendiente } = useAuth();
-  const { favoritosDeUsuario, alternarFavorito } = useData();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
 
   const [categoria, setCategoria] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');

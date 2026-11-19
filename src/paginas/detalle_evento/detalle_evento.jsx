@@ -3,11 +3,13 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import MapaAsientos from '../../componentes/MapaAsientos';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
+import { useSeleccion } from '../../contexto/useSeleccion';
 import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
 import {
   MAX_ASIENTOS,
+  RECARGO_VIP,
   calcularTotales,
   etiquetaEstadoVenta,
   formatearPrecio,
@@ -33,13 +35,8 @@ function DetalleEvento() {
   const { id } = useParams();
   const navegar = useNavigate();
   const { usuario } = useAuth();
-  const {
-    asientosSeleccionados,
-    alternarAsiento,
-    limpiarSeleccion,
-    favoritosDeUsuario,
-    alternarFavorito,
-  } = useData();
+  const { asientosSeleccionados, alternarAsiento, limpiarSeleccion } = useSeleccion();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
   const [aviso, setAviso] = useState('');
 
   const [evento, setEvento] = useState(null);
@@ -181,9 +178,9 @@ function DetalleEvento() {
               <div className={estilos.filaPrecio}>
                 <span className={estilos.filaEtiqueta}>
                   Zona VIP (A–C)
-                  <span className={estilos.recargo}>×1.5</span>
+                  <span className={estilos.recargo}>×{RECARGO_VIP}</span>
                 </span>
-                <span className={estilos.precioValor}>{formatearPrecio(evento.precioBase * 1.5)}</span>
+                <span className={estilos.precioValor}>{formatearPrecio(evento.precioBase * RECARGO_VIP)}</span>
               </div>
               <p className={estilos.notaPrecio}>
                 Al confirmar la compra se añade un 5% de cargo por servicio.

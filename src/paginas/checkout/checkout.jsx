@@ -3,8 +3,9 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import { useAuth } from '../../contexto/useAuth';
 import { useData } from '../../contexto/useData';
+import { useSeleccion } from '../../contexto/useSeleccion';
 import { formatearFechaLarga } from '../../utilidades/fechas';
-import { calcularTotales, formatearPrecio } from '../../utilidades/precios';
+import { RECARGO_VIP, calcularTotales, formatearPrecio } from '../../utilidades/precios';
 import estilos from './checkout.module.css';
 
 /**
@@ -19,7 +20,8 @@ function Checkout() {
   const { id } = useParams();
   const navegar = useNavigate();
   const { usuario } = useAuth();
-  const { obtenerEvento, asientosSeleccionados, crearCompra } = useData();
+  const { obtenerEvento, crearCompra } = useData();
+  const { asientosSeleccionados, limpiarSeleccion } = useSeleccion();
   const [error, setError] = useState('');
   const [procesando, setProcesando] = useState(false);
 
@@ -49,6 +51,7 @@ function Checkout() {
       return;
     }
 
+    limpiarSeleccion();
     navegar(`/confirmacion/${resultado.compra.id}`, { replace: true });
   };
 
@@ -103,7 +106,7 @@ function Checkout() {
                     <span className={estilos.etiquetaVip}>VIP</span>
                   </div>
                   <span className={estilos.asientoPrecio}>
-                    {formatearPrecio(evento.precio * 1.5)}
+                    {formatearPrecio(evento.precio * RECARGO_VIP)}
                   </span>
                 </div>
               ))}

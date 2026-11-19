@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import { useAuth } from '../../contexto/useAuth';
 import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { etiquetaRol, inicialDe } from '../../utilidades/roles';
 import { formatearFechaCorta, formatearFechaLarga, formatearMarcaTiempo } from '../../utilidades/fechas';
 import { formatearPrecio } from '../../utilidades/precios';
@@ -59,13 +61,27 @@ function EstadoVacio({ icono, titulo, descripcion, accion, alPulsar }) {
  */
 function PanelUsuario() {
   const { usuario } = useAuth();
-  const { comprasDeUsuario, favoritosDeUsuario, alternarFavorito, obtenerEvento, eventos } = useData();
+  const { comprasDeUsuario, obtenerEvento } = useData();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
   const navegar = useNavigate();
   const [pestana, setPestana] = useState('perfil');
 
+  // Los favoritos guardan ids reales de la API (desde la Fase 3), así que para mostrarlos
+  // hace falta el catálogo real, no el mock de useData() (que sigue en otro espacio de ids).
+  const [catalogoEventos, setCatalogoEventos] = useState([]);
+
+  useEffect(() => {
+    serviciosEventos
+      .listar()
+      .then(setCatalogoEventos)
+      .catch(() => {
+        // Si falla, "Mis Favoritos" se ve vacío en vez de romper el resto del panel.
+      });
+  }, []);
+
   const misCompras = comprasDeUsuario(usuario.id);
   const idsFavoritos = favoritosDeUsuario(usuario.id);
-  const misFavoritos = eventos.filter((evento) => idsFavoritos.includes(evento.id));
+  const misFavoritos = catalogoEventos.filter((evento) => idsFavoritos.includes(evento.id));
 
   const pestanas = [
     { id: 'perfil', etiqueta: 'Mi Perfil' },
@@ -207,7 +223,7 @@ function PanelUsuario() {
                       <span className={estilos.categoria}>{evento.categoria}</span>
                       <h3 className={estilos.favoritoTitulo}>{evento.nombre}</h3>
                       <p className={estilos.favoritoFecha}>{formatearFechaCorta(evento.fecha)}</p>
-                      <p className={estilos.favoritoPrecio}>{formatearPrecio(evento.precio)}</p>
+                      <p className={estilos.favoritoPrecio}>{formatearPrecio(evento.precioBase)}</p>
                     </div>
 
                     <div className={estilos.favoritoAcciones}>
