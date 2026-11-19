@@ -1,20 +1,19 @@
 # Teatro Luminaria
 
-Este repositorio es un **monorepo**: el frontend (React + Vite) vive en esta raíz y el backend (ASP.NET Core API) vive en [`backend/`](backend/README.md), como carpetas hermanas. Cada uno tiene su propia configuración y se corre por separado — ver `backend/README.md` para levantar la API.
+# Diagrama de Clase
+![Diagrama de Clases](documentos/ImagenDiagramaClase.svg)
 
-## React + Vite
+# Diagramas de Secuencia 
+![Secuencia Favoritos](documentos/ImagenFav.svg)
+![Secuencia Inicio de Sesión](documentos/ImagenIniciosesion.svg)
+![Secuencia Favoritos Sin Refinamiento](documentos/ImagenNoRefFav.svg)
+![Secuencia Inicio de Sesión Sin Refinamiento](documentos/ImagenNoRefInicio.svg)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Entregables 
+![Entregable 1](https://drive.google.com/file/d/1h8DqxQ1Ge1_3Hh6tAiIboE43n_J5pN7b/view?usp=sharing)
+![Entregable 2](https://drive.google.com/file/d/1Gr0gSRLfSWrAb5n8OY3vEKbFFGpv8s2F/view?usp=sharing)
+![Entregable 3](https://drive.google.com/file/d/1RSf7xWhe72qY5QO5zP3fabDa0opzVa3l/view?usp=sharing)
 
-Currently, two official plugins are available:
+# PDF Auditoria IA Claude
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+![Auditoria IA para Lab 3](https://drive.google.com/file/d/1sYB0uHqmA6SS7goO2D4rAjc96T_6-15k/view?usp=sharing)
