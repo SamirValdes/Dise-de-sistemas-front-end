@@ -7,25 +7,31 @@ import { MAX_ASIENTOS } from '../utilidades/precios';
  * de los datos de compras: es transitoria a propósito (no se persiste), así que un
  * refresco la pierde y el checkout redirige a la cartelera en vez de quedarse con una
  * selección que ya no se puede garantizar.
+ *
+ * El eventoId se normaliza a string antes de comparar: detalle_evento.jsx lo pasa como
+ * número (evento.id, de la API) y checkout.jsx lo lee como string (useParams().id, que
+ * siempre es texto) — sin esto, `===` nunca los veía iguales y "Continuar con la compra"
+ * rebotaba de inmediato por selección "vacía".
  */
 export function SeleccionProvider({ children }) {
   const [seleccion, setSeleccion] = useState({ eventoId: null, asientos: [] });
 
   const asientosSeleccionados = useCallback(
-    (eventoId) => (seleccion.eventoId === eventoId ? seleccion.asientos : []),
+    (eventoId) => (seleccion.eventoId === String(eventoId) ? seleccion.asientos : []),
     [seleccion],
   );
 
   /** Devuelve false si se intentó pasar del tope de asientos, para avisar en la interfaz. */
   const alternarAsiento = useCallback(
     (eventoId, asiento) => {
-      const actuales = seleccion.eventoId === eventoId ? seleccion.asientos : [];
+      const idNormalizado = String(eventoId);
+      const actuales = seleccion.eventoId === idNormalizado ? seleccion.asientos : [];
       const yaEstaba = actuales.includes(asiento);
 
       if (!yaEstaba && actuales.length >= MAX_ASIENTOS) return false;
 
       setSeleccion({
-        eventoId,
+        eventoId: idNormalizado,
         asientos: yaEstaba ? actuales.filter((a) => a !== asiento) : [...actuales, asiento],
       });
       return true;
@@ -38,7 +44,7 @@ export function SeleccionProvider({ children }) {
   }, []);
 
   const fijarAsientos = useCallback((eventoId, asientos) => {
-    setSeleccion({ eventoId, asientos });
+    setSeleccion({ eventoId: String(eventoId), asientos });
   }, []);
 
   const valor = useMemo(

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
+import CodigoQR from '../../componentes/CodigoQR';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
 import { useFavoritos } from '../../contexto/useFavoritos';
+import { compras } from '../../servicios/compras';
 import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { etiquetaRol, inicialDe } from '../../utilidades/roles';
 import { formatearFechaCorta, formatearFechaLarga, formatearMarcaTiempo } from '../../utilidades/fechas';
@@ -61,25 +62,35 @@ function EstadoVacio({ icono, titulo, descripcion, accion, alPulsar }) {
  */
 function PanelUsuario() {
   const { usuario } = useAuth();
-  const { comprasDeUsuario, obtenerEvento } = useData();
   const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
   const navegar = useNavigate();
   const [pestana, setPestana] = useState('perfil');
 
-  // Los favoritos guardan ids reales de la API (desde la Fase 3), así que para mostrarlos
-  // hace falta el catálogo real, no el mock de useData() (que sigue en otro espacio de ids).
+  // Catálogo real de eventos: lo usan tanto "Mis Favoritos" (ids reales desde la Fase 3)
+  // como "Mis Entradas" (compras del servicio simulado, que también guardan ids reales).
   const [catalogoEventos, setCatalogoEventos] = useState([]);
+  const [misCompras, setMisCompras] = useState([]);
+  const [cargandoEntradas, setCargandoEntradas] = useState(true);
 
   useEffect(() => {
     serviciosEventos
       .listar()
       .then(setCatalogoEventos)
       .catch(() => {
-        // Si falla, "Mis Favoritos" se ve vacío en vez de romper el resto del panel.
+        // Si falla, "Mis Favoritos"/"Mis Entradas" se ven vacíos en vez de romper el panel.
       });
   }, []);
 
-  const misCompras = comprasDeUsuario(usuario.id);
+  useEffect(() => {
+    compras
+      .misEntradas()
+      .then(setMisCompras)
+      .catch(() => {
+        // Idem: una entrada vacía es mejor que una pantalla rota.
+      })
+      .finally(() => setCargandoEntradas(false));
+  }, []);
+
   const idsFavoritos = favoritosDeUsuario(usuario.id);
   const misFavoritos = catalogoEventos.filter((evento) => idsFavoritos.includes(evento.id));
 
@@ -156,7 +167,9 @@ function PanelUsuario() {
         {/* Mis Entradas */}
         {pestana === 'entradas' && (
           <div className={estilos.lista}>
-            {misCompras.length === 0 ? (
+            {cargandoEntradas ? (
+              <p className={estilos.datoEtiqueta}>Cargando…</p>
+            ) : misCompras.length === 0 ? (
               <EstadoVacio
                 icono={<IconoEntrada />}
                 titulo="Sin entradas aún"
@@ -166,7 +179,7 @@ function PanelUsuario() {
               />
             ) : (
               misCompras.map((compra) => {
-                const evento = obtenerEvento(compra.eventoId);
+                const evento = catalogoEventos.find((e) => e.id === compra.eventoId);
                 if (!evento) return null;
 
                 return (
@@ -179,7 +192,7 @@ function PanelUsuario() {
                       <span className={estilos.categoria}>{evento.categoria}</span>
                       <h3 className={estilos.entradaTitulo}>{evento.nombre}</h3>
                       <p className={estilos.entradaMeta}>
-                        {formatearFechaLarga(evento.fecha)} — {evento.hora}
+                        {formatearFechaLarga(evento.fecha)} — {evento.hora.slice(0, 5)}
                       </p>
                       <p className={estilos.entradaMeta}>
                         Asientos: <span className={estilos.monoTexto}>{compra.asientos.join(', ')}</span>
@@ -189,9 +202,13 @@ function PanelUsuario() {
                       </p>
                     </div>
 
+                    <div className={estilos.entradaQr}>
+                      <CodigoQR codigo={compra.codigoEntrada} />
+                    </div>
+
                     <div className={estilos.entradaImporte}>
                       <p className={estilos.importeTotal}>{formatearPrecio(compra.total)}</p>
-                      <p className={estilos.importeFecha}>{formatearMarcaTiempo(compra.compradaEn)}</p>
+                      <p className={estilos.importeFecha}>{formatearMarcaTiempo(compra.fecha)}</p>
                     </div>
                   </article>
                 );
