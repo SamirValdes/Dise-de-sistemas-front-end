@@ -18,6 +18,13 @@ public class ComprasController(ServicioCompras servicio) : ControllerBase
         var respuesta = await servicio.ReservarAsync(ObtenerUsuarioId(), solicitud.EventoId, solicitud.AsientoIds);
         return Ok(respuesta);
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> Comprar(ComprarRequest solicitud)
+    {
+        var respuesta = await servicio.ComprarAsync(ObtenerUsuarioId(), solicitud);
+        return Ok(respuesta);
+    }
 
     private int ObtenerUsuarioId()
     {

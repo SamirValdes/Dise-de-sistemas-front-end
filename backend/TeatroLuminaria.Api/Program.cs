@@ -34,6 +34,7 @@ builder.Services.AddDbContext<AppDbContext>(opciones =>
 
 builder.Services.AddScoped<ServicioJwt>();
 builder.Services.AddScoped<TeatroLuminaria.Api.Compras.ServicioCompras>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Pasarela.IPasarelaPago, TeatroLuminaria.Api.Compras.Pasarela.AdaptadorPasarelaSimulada>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

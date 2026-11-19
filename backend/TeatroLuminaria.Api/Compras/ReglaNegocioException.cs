@@ -8,4 +8,5 @@ public class ReglaNegocioException(string mensaje, int codigoHttp) : Exception(m
     public static ReglaNegocioException NoAutorizado(string mensaje) => new(mensaje, 401);
     public static ReglaNegocioException NoEncontrada(string mensaje) => new(mensaje, 404);
     public static ReglaNegocioException Conflicto(string mensaje) => new(mensaje, 409);
+    public static ReglaNegocioException PagoRechazado(string mensaje) => new(mensaje, 402);
 }
