@@ -46,6 +46,12 @@ builder.Services.AddSwaggerGen(opciones =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var contexto = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    SeedData.Aplicar(contexto);
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
