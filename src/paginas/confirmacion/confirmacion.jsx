@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
-import CodigoQR from '../../componentes/CodigoQR';
 import { compras } from '../../servicios/compras';
 import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
@@ -11,26 +10,30 @@ import estilos from './confirmacion.module.css';
 /**
  * Confirmación de compra.
  *
- * La compra se busca por su id en la URL (`/confirmacion/:compraId`), así que el enlace
- * sigue funcionando al recargar. El servicio de compras (sección 4 de la guía) no expone
- * un "obtener una compra", así que se busca dentro de misCompras() — es lo mismo que haría
- * una API real que solo da el historial completo.
+ * checkout.jsx navega aquí pasando compra/evento/asientos por el estado de la ruta (no hay
+ * un GET /api/compras/{id} individual, y el historial de /api/compras/mias no trae los
+ * códigos de asiento ni el detalle por entrada). Si no hay estado — enlace directo o recarga
+ * de la página — se intenta encontrar la compra en el historial igual, aunque sin asientos.
  */
 function Confirmacion() {
   const { compraId } = useParams();
+  const { state } = useLocation();
 
-  const [compra, setCompra] = useState(null);
-  const [evento, setEvento] = useState(null);
-  const [cargando, setCargando] = useState(true);
+  const [compra, setCompra] = useState(state?.compra ?? null);
+  const [evento, setEvento] = useState(state?.evento ?? null);
+  const asientos = state?.asientos ?? null;
+  const [cargando, setCargando] = useState(!state);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (state) return undefined;
+
     let cancelado = false;
 
     async function cargar() {
       try {
         const todas = await compras.misCompras();
-        const encontrada = todas.find((c) => c.id === compraId);
+        const encontrada = todas.find((c) => String(c.id) === compraId);
 
         if (!encontrada) {
           if (!cancelado) setError(true);
@@ -54,6 +57,7 @@ function Confirmacion() {
     return () => {
       cancelado = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compraId]);
 
   if (cargando) {
@@ -116,21 +120,24 @@ function Confirmacion() {
               <div>
                 <p className={estilos.campoEtiqueta}>Asientos</p>
                 <p className={`${estilos.campoValor} ${estilos.mono}`}>
-                  {compra.asientos.join(', ')}
+                  {asientos?.length ? asientos.join(', ') : `${compra.cantidadAsientos ?? ''} entrada(s)`}
                 </p>
               </div>
             </div>
 
             <div className={estilos.pieBoleto}>
               <div>
-                <p className={estilos.campoEtiqueta}>Código de entrada</p>
-                <p className={estilos.codigo}>{compra.codigoEntrada}</p>
+                <p className={estilos.campoEtiqueta}>Estado</p>
+                <p className={estilos.codigo}>{compra.estado}</p>
                 <p className={estilos.totalPagado}>
                   Total pagado: <span>{formatearPrecio(compra.total)}</span>
                 </p>
               </div>
-              <CodigoQR codigo={compra.codigoEntrada} />
             </div>
+
+            <p className={estilos.campoEtiqueta}>
+              El código y el QR de cada entrada están en «Mis entradas», dentro de tu panel.
+            </p>
           </div>
         </article>
 

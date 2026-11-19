@@ -66,10 +66,14 @@ function PanelUsuario() {
   const navegar = useNavigate();
   const [pestana, setPestana] = useState('perfil');
 
-  // Catálogo real de eventos: lo usan tanto "Mis Favoritos" (ids reales desde la Fase 3)
-  // como "Mis Entradas" (compras del servicio simulado, que también guardan ids reales).
+  // Catálogo real de eventos: lo usa "Mis Favoritos" (ids reales desde la Fase 3).
   const [catalogoEventos, setCatalogoEventos] = useState([]);
-  const [misCompras, setMisCompras] = useState([]);
+
+  // Historial de compras (GET /api/compras/mias) y entradas propias, separadas en
+  // próximas/pasadas por la API (GET /api/entradas/mias) — Fase 10.
+  const [misComprasHistorial, setMisComprasHistorial] = useState([]);
+  const [cargandoCompras, setCargandoCompras] = useState(true);
+  const [misEntradas, setMisEntradas] = useState({ proximas: [], pasadas: [] });
   const [cargandoEntradas, setCargandoEntradas] = useState(true);
 
   useEffect(() => {
@@ -77,26 +81,36 @@ function PanelUsuario() {
       .listar()
       .then(setCatalogoEventos)
       .catch(() => {
-        // Si falla, "Mis Favoritos"/"Mis Entradas" se ven vacíos en vez de romper el panel.
+        // Si falla, "Mis Favoritos" se ve vacío en vez de romper el panel.
       });
   }, []);
 
   useEffect(() => {
     compras
-      .misEntradas()
-      .then(setMisCompras)
+      .misCompras()
+      .then(setMisComprasHistorial)
       .catch(() => {
-        // Idem: una entrada vacía es mejor que una pantalla rota.
+        // Idem: una lista vacía es mejor que una pantalla rota.
       })
+      .finally(() => setCargandoCompras(false));
+  }, []);
+
+  useEffect(() => {
+    compras
+      .misEntradas()
+      .then(setMisEntradas)
+      .catch(() => {})
       .finally(() => setCargandoEntradas(false));
   }, []);
 
   const idsFavoritos = favoritosDeUsuario(usuario.id);
   const misFavoritos = catalogoEventos.filter((evento) => idsFavoritos.includes(evento.id));
+  const totalEntradas = misEntradas.proximas.length + misEntradas.pasadas.length;
 
   const pestanas = [
     { id: 'perfil', etiqueta: 'Mi Perfil' },
-    { id: 'entradas', etiqueta: 'Mis Entradas', cuenta: misCompras.length },
+    { id: 'compras', etiqueta: 'Mis Compras', cuenta: misComprasHistorial.length },
+    { id: 'entradas', etiqueta: 'Mis Entradas', cuenta: totalEntradas },
     { id: 'favoritos', etiqueta: 'Mis Favoritos', cuenta: misFavoritos.length },
   ];
 
@@ -123,7 +137,7 @@ function PanelUsuario() {
           </div>
 
           <div className={estilos.contadores}>
-            <Contador valor={misCompras.length} etiqueta="Compras" />
+            <Contador valor={misComprasHistorial.length} etiqueta="Compras" />
             <Contador valor={misFavoritos.length} etiqueta="Favoritos" />
           </div>
         </header>
@@ -164,12 +178,53 @@ function PanelUsuario() {
           </section>
         )}
 
-        {/* Mis Entradas */}
+        {/* Mis Compras: historial (GET /api/compras/mias) */}
+        {pestana === 'compras' && (
+          <div className={estilos.lista}>
+            {cargandoCompras ? (
+              <p className={estilos.datoEtiqueta}>Cargando…</p>
+            ) : misComprasHistorial.length === 0 ? (
+              <EstadoVacio
+                icono={<IconoEntrada />}
+                titulo="Sin compras aún"
+                descripcion="Cuando compres entradas, aparecerán aquí."
+                accion="Ver eventos"
+                alPulsar={() => navegar('/')}
+              />
+            ) : (
+              misComprasHistorial.map((compra) => (
+                <article key={compra.id} className={estilos.entrada}>
+                  <div className={estilos.miniatura}>
+                    <span>{compra.estado}</span>
+                  </div>
+
+                  <div className={estilos.entradaCuerpo}>
+                    <span className={estilos.categoria}>{compra.estado}</span>
+                    <h3 className={estilos.entradaTitulo}>{compra.eventoNombre}</h3>
+                    <p className={estilos.entradaMeta}>{formatearMarcaTiempo(compra.fecha)}</p>
+                    <p className={estilos.entradaMeta}>
+                      {compra.cantidadAsientos} {compra.cantidadAsientos === 1 ? 'entrada' : 'entradas'}
+                    </p>
+                  </div>
+
+                  <div className={estilos.entradaImporte}>
+                    <p className={estilos.importeTotal}>{formatearPrecio(compra.total)}</p>
+                    <p className={estilos.importeFecha}>
+                      Subtotal {formatearPrecio(compra.subtotal)} + {formatearPrecio(compra.cargoServicio)}
+                    </p>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Mis Entradas: próximas y pasadas (GET /api/entradas/mias), QR solo en próximas */}
         {pestana === 'entradas' && (
           <div className={estilos.lista}>
             {cargandoEntradas ? (
               <p className={estilos.datoEtiqueta}>Cargando…</p>
-            ) : misCompras.length === 0 ? (
+            ) : totalEntradas === 0 ? (
               <EstadoVacio
                 icono={<IconoEntrada />}
                 titulo="Sin entradas aún"
@@ -178,41 +233,73 @@ function PanelUsuario() {
                 alPulsar={() => navegar('/')}
               />
             ) : (
-              misCompras.map((compra) => {
-                const evento = catalogoEventos.find((e) => e.id === compra.eventoId);
-                if (!evento) return null;
+              <>
+                <h3 className={estilos.tarjetaTitulo}>Próximas</h3>
+                {misEntradas.proximas.length === 0 ? (
+                  <p className={estilos.datoEtiqueta}>No tienes entradas para eventos próximos.</p>
+                ) : (
+                  misEntradas.proximas.map((entrada) => (
+                    <article key={entrada.id} className={estilos.entrada}>
+                      <div className={estilos.miniatura}>
+                        <span>{entrada.zona}</span>
+                      </div>
 
-                return (
-                  <article key={compra.id} className={estilos.entrada}>
-                    <div className={estilos.miniatura}>
-                      <span>{evento.categoria}</span>
-                    </div>
+                      <div className={estilos.entradaCuerpo}>
+                        <h3 className={estilos.entradaTitulo}>{entrada.eventoNombre}</h3>
+                        <p className={estilos.entradaMeta}>
+                          {formatearFechaLarga(entrada.eventoFecha)} — {entrada.eventoHora.slice(0, 5)}
+                        </p>
+                        <p className={estilos.entradaMeta}>
+                          Asiento:{' '}
+                          <span className={estilos.monoTexto}>
+                            {entrada.fila}
+                            {entrada.numero}
+                          </span>{' '}
+                          · {entrada.zona}
+                        </p>
+                        <p className={estilos.entradaMeta}>
+                          Código: <span className={estilos.codigo}>{entrada.codigoUnico}</span>
+                        </p>
+                      </div>
 
-                    <div className={estilos.entradaCuerpo}>
-                      <span className={estilos.categoria}>{evento.categoria}</span>
-                      <h3 className={estilos.entradaTitulo}>{evento.nombre}</h3>
-                      <p className={estilos.entradaMeta}>
-                        {formatearFechaLarga(evento.fecha)} — {evento.hora.slice(0, 5)}
-                      </p>
-                      <p className={estilos.entradaMeta}>
-                        Asientos: <span className={estilos.monoTexto}>{compra.asientos.join(', ')}</span>
-                      </p>
-                      <p className={estilos.entradaMeta}>
-                        Código: <span className={estilos.codigo}>{compra.codigoEntrada}</span>
-                      </p>
-                    </div>
+                      <div className={estilos.entradaQr}>
+                        <CodigoQR codigo={entrada.codigoUnico} imagenBase64={entrada.codigoQr} />
+                      </div>
+                    </article>
+                  ))
+                )}
 
-                    <div className={estilos.entradaQr}>
-                      <CodigoQR codigo={compra.codigoEntrada} />
-                    </div>
+                <h3 className={estilos.tarjetaTitulo}>Pasadas</h3>
+                {misEntradas.pasadas.length === 0 ? (
+                  <p className={estilos.datoEtiqueta}>Todavía no tienes entradas de eventos pasados.</p>
+                ) : (
+                  misEntradas.pasadas.map((entrada) => (
+                    <article key={entrada.id} className={estilos.entrada}>
+                      <div className={estilos.miniatura}>
+                        <span>{entrada.zona}</span>
+                      </div>
 
-                    <div className={estilos.entradaImporte}>
-                      <p className={estilos.importeTotal}>{formatearPrecio(compra.total)}</p>
-                      <p className={estilos.importeFecha}>{formatearMarcaTiempo(compra.fecha)}</p>
-                    </div>
-                  </article>
-                );
-              })
+                      <div className={estilos.entradaCuerpo}>
+                        <h3 className={estilos.entradaTitulo}>{entrada.eventoNombre}</h3>
+                        <p className={estilos.entradaMeta}>
+                          {formatearFechaLarga(entrada.eventoFecha)} — {entrada.eventoHora.slice(0, 5)}
+                        </p>
+                        <p className={estilos.entradaMeta}>
+                          Asiento:{' '}
+                          <span className={estilos.monoTexto}>
+                            {entrada.fila}
+                            {entrada.numero}
+                          </span>{' '}
+                          · {entrada.zona}
+                        </p>
+                        <p className={estilos.entradaMeta}>
+                          Código: <span className={estilos.codigo}>{entrada.codigoUnico}</span>
+                        </p>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </>
             )}
           </div>
         )}

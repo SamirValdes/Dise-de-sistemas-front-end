@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import { useAuth } from '../../contexto/useAuth';
@@ -36,11 +36,22 @@ function Checkout() {
 
   const [estado, setEstado] = useState('reservando'); // reservando | listo | reservaError | vencido | procesando | rechazado
   const [mensaje, setMensaje] = useState('');
-  const [reservaId, setReservaId] = useState(null);
   const [segundosRestantes, setSegundosRestantes] = useState(0);
   const [numeroTarjeta, setNumeroTarjeta] = useState('');
 
   const asientos = asientosSeleccionados(id);
+
+  // El mapa de asientos solo conoce códigos ("A1"); reservar/comprar necesitan el Id
+  // numérico real que ahora trae GET /api/eventos/{id} (ver AsientoRespuesta.Id).
+  const idPorCodigo = useMemo(() => {
+    const mapa = {};
+    evento?.asientos.forEach((asiento) => {
+      mapa[`${asiento.fila}${asiento.numero}`] = asiento.id;
+    });
+    return mapa;
+  }, [evento]);
+
+  const asientoIds = asientos.map((codigo) => idPorCodigo[codigo]).filter((id_) => id_ !== undefined);
 
   // Carga el evento real (el detalle de asientos/precio ya no sale del mock).
   useEffect(() => {
@@ -67,8 +78,7 @@ function Checkout() {
     setEstado('reservando');
     setMensaje('');
     try {
-      const { reservaId: id_, expiraEn } = await compras.reservarAsientos(evento.id, asientos);
-      setReservaId(id_);
+      const { expiraEn } = await compras.reservarAsientos(evento.id, asientoIds);
       setSegundosRestantes(Math.max(0, Math.round((expiraEn - Date.now()) / 1000)));
       setEstado('listo');
     } catch (err) {
@@ -136,23 +146,25 @@ function Checkout() {
     setMensaje('');
 
     try {
-      const { compra } = await compras.comprar(evento.id, asientos, {
-        reservaId,
-        precioBase: evento.precioBase,
-        numeroTarjeta,
-      });
+      const { compra } = await compras.comprar(evento.id, asientoIds, { numeroTarjeta });
       // "comprado" exime el guard de "selección vacía" de arriba: limpiarSeleccion() vacía
       // la selección en el mismo tick y, sin esto, ese guard redirigía a /evento/:id en vez
       // de dejar que navegar() llevara a la confirmación.
       setEstado('comprado');
       limpiarSeleccion();
-      navegar(`/confirmacion/${compra.id}`, { replace: true });
+      navegar(`/confirmacion/${compra.id}`, {
+        replace: true,
+        state: { compra, evento, asientos },
+      });
     } catch (err) {
-      if (err.status === 410) {
+      // El backend no distingue con un código aparte la reserva vencida: ambas (vencida u
+      // ocupada por otra persona) llegan como 409, así que se interpretan por el mensaje.
+      if (err.status === 409 && /venci/i.test(err.message)) {
         setEstado('vencido');
         limpiarSeleccion();
       } else {
-        // 402: pago rechazado (flujo 8). Los asientos ya se liberaron del lado del servicio.
+        // 409 por asiento ocupado, o 402 pago rechazado (flujo 8): ambos se resuelven
+        // reintentando la reserva.
         setMensaje(err.message);
         setEstado('rechazado');
       }
