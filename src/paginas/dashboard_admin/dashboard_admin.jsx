@@ -1,10 +1,13 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexto/useAuth';
 import { useData } from '../../contexto/useData';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
+import { usuarios as serviciosUsuarios } from '../../servicios/usuarios';
 import { formatearMarcaTiempoCorta } from '../../utilidades/fechas';
-import { etiquetaEstado, formatearPrecio } from '../../utilidades/precios';
-import { etiquetaRol, inicialDe } from '../../utilidades/roles';
+import { formatearPrecio } from '../../utilidades/precios';
+import { inicialDe } from '../../utilidades/roles';
+import FormularioEvento from './FormularioEvento';
 import './dashboard_admin.css';
 
 /** Etiqueta corta para el gráfico, donde no cabe el nombre completo. */
@@ -20,9 +23,108 @@ export default function Dashboard() {
   const refEventos = useRef(null);
   const refUsuarios = useRef(null);
 
+  // --- Eventos: conectados a la API (listar incluye Borrador porque la pide un admin) ---
+  const [eventosApi, setEventosApi] = useState([]);
+  const [cargandoEventos, setCargandoEventos] = useState(true);
+  const [errorEventos, setErrorEventos] = useState('');
+  const [avisoEventos, setAvisoEventos] = useState('');
+  const [formularioAbierto, setFormularioAbierto] = useState(false);
+  const [eventoEnEdicion, setEventoEnEdicion] = useState(null);
+
+  const cargarEventos = useCallback(async () => {
+    setCargandoEventos(true);
+    setErrorEventos('');
+    try {
+      const datos = await serviciosEventos.listar();
+      setEventosApi(datos);
+    } catch (err) {
+      setErrorEventos(err.message);
+    } finally {
+      setCargandoEventos(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    async function cargar() {
+      await cargarEventos();
+    }
+
+    cargar();
+  }, [cargarEventos]);
+
+  const abrirCrear = () => {
+    setEventoEnEdicion(null);
+    setFormularioAbierto(true);
+    setAvisoEventos('');
+  };
+
+  const abrirEditar = (evento) => {
+    setEventoEnEdicion(evento);
+    setFormularioAbierto(true);
+    setAvisoEventos('');
+  };
+
+  const cerrarFormulario = () => {
+    setFormularioAbierto(false);
+    setEventoEnEdicion(null);
+  };
+
+  const guardarEvento = async (datos) => {
+    if (eventoEnEdicion) {
+      await serviciosEventos.actualizar(eventoEnEdicion.id, datos);
+    } else {
+      await serviciosEventos.crear(datos);
+    }
+    cerrarFormulario();
+    await cargarEventos();
+  };
+
+  const cambiarEstadoEvento = async (evento, nuevoEstado) => {
+    setAvisoEventos('');
+    try {
+      await serviciosEventos.cambiarEstado(evento.id, nuevoEstado);
+      await cargarEventos();
+    } catch (err) {
+      setAvisoEventos(err.message);
+    }
+  };
+
+  const eliminarEvento = async (evento) => {
+    setAvisoEventos('');
+    try {
+      await serviciosEventos.eliminar(evento.id);
+      await cargarEventos();
+    } catch (err) {
+      // Ej.: 409 "No se puede eliminar un evento que ya tiene compras."
+      setAvisoEventos(err.message);
+    }
+  };
+
+  // --- Usuarios: conectados a GET /api/usuarios ---
+  const [usuariosApi, setUsuariosApi] = useState([]);
+  const [cargandoUsuariosApi, setCargandoUsuariosApi] = useState(true);
+  const [errorUsuariosApi, setErrorUsuariosApi] = useState('');
+
+  useEffect(() => {
+    async function cargarUsuarios() {
+      setCargandoUsuariosApi(true);
+      setErrorUsuariosApi('');
+      try {
+        const datos = await serviciosUsuarios.listar();
+        setUsuariosApi(datos);
+      } catch (err) {
+        setErrorUsuariosApi(err.message);
+      } finally {
+        setCargandoUsuariosApi(false);
+      }
+    }
+
+    cargarUsuarios();
+  }, []);
+
   /*
-   * Todas las cifras salen de las compras y los usuarios reales del contexto.
-   * Antes estaban escritas a mano y no cambiaban por mucho que se compraran entradas.
+   * Las cifras de esta sección (tarjetas, gráfico y compras recientes) son métricas:
+   * quedan fuera de esta integración y se dejan con los datos locales de siempre.
    */
   const ingresosTotales = compras.reduce((suma, compra) => suma + compra.total, 0);
   const entradasVendidas = compras.reduce(
@@ -83,10 +185,6 @@ export default function Dashboard() {
   const comprasRecientes = [...compras]
     .sort((a, b) => new Date(b.compradaEn) - new Date(a.compradaEn))
     .slice(0, 5);
-
-  const usuariosOrdenados = [...usuarios].sort(
-    (a, b) => new Date(b.registradoEn) - new Date(a.registradoEn),
-  );
 
   const irA = (referencia) => {
     if (!referencia.current) return;
@@ -164,7 +262,7 @@ export default function Dashboard() {
             <p className="dash-subtitle">Bienvenido, {usuario?.nombre ?? 'Admin'}</p>
           </header>
 
-          {/* Tarjetas de estadísticas */}
+          {/* Tarjetas de estadísticas (métricas: datos locales, fuera de esta integración) */}
           <div className="stats-grid">
             {stats.map((stat) => (
               <div className="stat-card" key={stat.id}>
@@ -181,7 +279,7 @@ export default function Dashboard() {
           </div>
 
           <div className="charts-container">
-            {/* Gráfico de barras */}
+            {/* Gráfico de barras (métrica: datos locales) */}
             <div className="chart-panel">
               <div className="panel-header">
                 <h3>Entradas vendidas por evento</h3>
@@ -203,43 +301,75 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Lista de eventos */}
+            {/* Gestión de eventos: conectada a la API */}
             <div className="events-panel" ref={refEventos}>
               <div className="panel-header">
-                <h3>Estado de eventos</h3>
+                <h3>Gestión de eventos</h3>
+                <button type="button" className="btn-admin" onClick={abrirCrear}>
+                  + Nuevo evento
+                </button>
               </div>
-              <ul className="events-list">
-                {eventos.map((evento) => {
-                  const vendidas = compras
-                    .filter((compra) => compra.eventoId === evento.id)
-                    .reduce((suma, compra) => suma + compra.asientos.length, 0);
 
-                  return (
-                    <li key={evento.id}>
+              {avisoEventos && <p className="admin-form-error">{avisoEventos}</p>}
+
+              {formularioAbierto && (
+                <FormularioEvento
+                  eventoEnEdicion={eventoEnEdicion}
+                  alGuardar={guardarEvento}
+                  alCancelar={cerrarFormulario}
+                />
+              )}
+
+              {errorEventos ? (
+                <p className="admin-form-error">{errorEventos}</p>
+              ) : cargandoEventos ? (
+                <p className="panel-subtitle">Cargando eventos…</p>
+              ) : (
+                <ul className="events-list">
+                  {eventosApi.map((evento) => (
+                    <li key={evento.id} className="events-list-item">
                       <div className="ev-info">
-                        <span
-                          className={`ev-dot ${evento.estado === 'activo' ? 'green' : 'red'}`}
-                        ></span>
+                        <span className={`ev-dot ${evento.estado === 'Publicado' ? 'green' : 'red'}`}></span>
                         <div>
                           <p className="ev-name">{evento.nombre}</p>
                           <p className="ev-tickets">
-                            {vendidas} {vendidas === 1 ? 'vendida' : 'vendidas'}
+                            {evento.asientosTotales - evento.asientosDisponibles} vendidas de{' '}
+                            {evento.asientosTotales}
                           </p>
                         </div>
                       </div>
-                      <span
-                        className={`badge ${evento.estado === 'activo' ? 'badge-active' : 'badge-soon'}`}
-                      >
-                        {etiquetaEstado(evento.estado)}
-                      </span>
+
+                      <div className="ev-acciones">
+                        <select
+                          className="select-estado"
+                          value={evento.estado}
+                          onChange={(cambio) => cambiarEstadoEvento(evento, cambio.target.value)}
+                          aria-label={`Estado de ${evento.nombre}`}
+                        >
+                          <option value="Borrador">Borrador</option>
+                          <option value="Publicado">Publicado</option>
+                          <option value="Cancelado">Cancelado</option>
+                          <option value="Finalizado">Finalizado</option>
+                        </select>
+                        <button type="button" className="btn-admin-chico" onClick={() => abrirEditar(evento)}>
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-admin-chico btn-admin-peligro"
+                          onClick={() => eliminarEvento(evento)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </li>
-                  );
-                })}
-              </ul>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
-          {/* Compras recientes */}
+          {/* Compras recientes (métrica: datos locales) */}
           <div className="recent-panel">
             <div className="panel-header">
               <h3>Compras recientes</h3>
@@ -276,43 +406,45 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Usuarios registrados */}
+          {/* Usuarios registrados: conectado a GET /api/usuarios */}
           <div className="recent-panel" ref={refUsuarios}>
             <div className="panel-header">
               <h3>Usuarios registrados</h3>
-              <span className="panel-subtitle">{usuarios.length} cuentas</span>
+              <span className="panel-subtitle">{usuariosApi.length} cuentas</span>
             </div>
 
-            <div className="table-responsive">
-              <table className="recent-table">
-                <thead>
-                  <tr>
-                    <th>NOMBRE</th>
-                    <th>CORREO</th>
-                    <th>ROL</th>
-                    <th>REGISTRO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuariosOrdenados.map((cuenta) => (
-                    <tr key={cuenta.id}>
-                      <td>{cuenta.nombre}</td>
-                      <td className="tx-seats">{cuenta.correo}</td>
-                      <td>
-                        <span
-                          className={`badge ${cuenta.rol === 'usuario' ? 'badge-soon' : 'badge-active'}`}
-                        >
-                          {etiquetaRol(cuenta)}
-                        </span>
-                      </td>
-                      <td className="tx-date">
-                        {formatearMarcaTiempoCorta(cuenta.registradoEn)}
-                      </td>
+            {errorUsuariosApi ? (
+              <p className="admin-form-error">{errorUsuariosApi}</p>
+            ) : cargandoUsuariosApi ? (
+              <p className="panel-subtitle">Cargando usuarios…</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="recent-table">
+                  <thead>
+                    <tr>
+                      <th>NOMBRE</th>
+                      <th>CORREO</th>
+                      <th>ESTADO</th>
+                      <th>REGISTRO</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {usuariosApi.map((cuenta) => (
+                      <tr key={cuenta.correo}>
+                        <td>{cuenta.nombre}</td>
+                        <td className="tx-seats">{cuenta.correo}</td>
+                        <td>
+                          <span className={`badge ${cuenta.estado === 'Activo' ? 'badge-active' : 'badge-soon'}`}>
+                            {cuenta.estado}
+                          </span>
+                        </td>
+                        <td className="tx-date">{formatearMarcaTiempoCorta(cuenta.fechaRegistro)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </main>
       </div>

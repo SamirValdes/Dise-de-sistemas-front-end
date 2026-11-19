@@ -400,3 +400,127 @@
 .tx-total {
   font-weight: 600;
 }
+
+/* Gestión de eventos: formulario y acciones (Fase 5 de la integración) */
+.events-list-item {
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.ev-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.select-estado {
+  background-color: #0d0d12;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.btn-admin,
+.btn-admin-secundario,
+.btn-admin-chico {
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-admin {
+  background-color: #ff5c5c;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.btn-admin:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-admin-secundario {
+  background-color: transparent;
+  color: #8a8a98;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.btn-admin-chico {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: white;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+}
+
+.btn-admin-peligro {
+  background-color: rgba(255, 92, 92, 0.12);
+  color: #ff5c5c;
+}
+
+.admin-form {
+  background-color: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-form-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.admin-form-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #8a8a98;
+}
+
+.admin-form-campo-ancho {
+  grid-column: 1 / -1;
+}
+
+.admin-form-campo input,
+.admin-form-campo textarea {
+  background-color: #161420;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.admin-form-error {
+  color: #ff5c5c;
+  font-size: 0.85rem;
+  margin: 0.75rem 0;
+}
+
+.admin-form-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
