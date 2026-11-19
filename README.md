@@ -1,4 +1,8 @@
-# React + Vite
+# Teatro Luminaria
+
+Este repositorio es un **monorepo**: el frontend (React + Vite) vive en esta raíz y el backend (ASP.NET Core API) vive en [`backend/`](backend/README.md), como carpetas hermanas. Cada uno tiene su propia configuración y se corre por separado — ver `backend/README.md` para levantar la API.
+
+## React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
