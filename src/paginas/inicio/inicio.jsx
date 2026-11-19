@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
-import { CATEGORIAS } from '../../datos/seed';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
-import { etiquetaEstado, formatearPrecio } from '../../utilidades/precios';
+import { etiquetaEstadoVenta, formatearPrecio } from '../../utilidades/precios';
 import './inicio.css';
 
 const IconoCasa = () => (
@@ -31,22 +31,57 @@ const IconoCorazon = ({ relleno }) => (
 function Inicio() {
   const navegar = useNavigate();
   const { usuario, fijarRedireccionPendiente } = useAuth();
-  const { eventos, favoritosDeUsuario, alternarFavorito } = useData();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
 
   const [categoria, setCategoria] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');
+  const [categorias, setCategorias] = useState(['Todos']);
+  const [eventosApi, setEventosApi] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
 
-  const consulta = busqueda.trim().toLowerCase();
+  // Categorías de los filtros: se calculan una sola vez con el catálogo completo
+  // (sin filtros), para que la lista de píldoras no cambie según lo que ya esté filtrado.
+  useEffect(() => {
+    serviciosEventos
+      .listar()
+      .then((datos) => setCategorias(['Todos', ...new Set(datos.map((evento) => evento.categoria))]))
+      .catch(() => {
+        // Si falla, se queda solo "Todos"; la carga de abajo ya informa el error real.
+      });
+  }, []);
 
-  const filtrados = eventos.filter((evento) => {
-    const coincideCategoria = categoria === 'Todos' || evento.categoria === categoria;
-    const coincideBusqueda =
-      !consulta ||
-      evento.nombre.toLowerCase().includes(consulta) ||
-      evento.descripcion.toLowerCase().includes(consulta);
+  // Catálogo mostrado: usa los parámetros de la API (categoria, texto). El texto se
+  // manda con un pequeño retraso para no disparar una petición por cada tecla.
+  useEffect(() => {
+    let cancelado = false;
 
-    return coincideCategoria && coincideBusqueda;
-  });
+    async function cargar() {
+      setCargando(true);
+      setError('');
+
+      try {
+        const datos = await serviciosEventos.listar({
+          categoria: categoria === 'Todos' ? undefined : categoria,
+          texto: busqueda || undefined,
+        });
+        if (cancelado) return;
+        setEventosApi(datos);
+        setCargando(false);
+      } catch (err) {
+        if (cancelado) return;
+        setError(err.message ?? 'No se pudieron cargar los eventos.');
+        setCargando(false);
+      }
+    }
+
+    const temporizador = setTimeout(cargar, busqueda ? 350 : 0);
+
+    return () => {
+      cancelado = true;
+      clearTimeout(temporizador);
+    };
+  }, [categoria, busqueda]);
 
   // Los favoritos son de cada usuario: sin sesión no hay ninguno que mostrar.
   const favoritos = favoritosDeUsuario(usuario?.id);
@@ -121,7 +156,7 @@ function Inicio() {
         </div>
 
         <div className="filters-container">
-          {CATEGORIAS.map((nombreCategoria) => (
+          {categorias.map((nombreCategoria) => (
             <button
               key={nombreCategoria}
               type="button"
@@ -133,22 +168,29 @@ function Inicio() {
           ))}
         </div>
 
-        {filtrados.length === 0 ? (
+        {error ? (
+          <div className="sin-resultados">
+            <p className="sin-resultados-titulo">No se pudo cargar la cartelera</p>
+            <p className="sin-resultados-texto">{error}</p>
+          </div>
+        ) : cargando ? (
+          <div className="sin-resultados">
+            <p className="sin-resultados-titulo">Cargando eventos…</p>
+          </div>
+        ) : eventosApi.length === 0 ? (
           <div className="sin-resultados">
             <p className="sin-resultados-titulo">No se encontraron eventos</p>
             <p className="sin-resultados-texto">Prueba con otra categoría o búsqueda</p>
           </div>
         ) : (
           <div className="cards-grid">
-            {filtrados.map((evento) => (
+            {eventosApi.map((evento) => (
               <div className="card" key={evento.id}>
                 <div className="card-image-placeholder">
                   <span className="tag-category">{evento.categoria}</span>
 
-                  <span
-                    className={`tag-status ${evento.estado === 'proximo' ? 'soon' : ''}`}
-                  >
-                    {etiquetaEstado(evento.estado)}
+                  <span className={`tag-status ${evento.estadoVenta !== 'EnVenta' ? 'soon' : ''}`}>
+                    {etiquetaEstadoVenta(evento.estadoVenta)}
                   </span>
 
                   {usuario && (
@@ -178,16 +220,17 @@ function Inicio() {
                       <span className="icon">📅</span> {formatearFechaLarga(evento.fecha)}
                     </li>
                     <li>
-                      <span className="icon">⏰</span> {evento.hora} — {evento.duracion}
+                      <span className="icon">⏰</span> {evento.hora.slice(0, 5)}
+                      {evento.duracion ? ` — ${evento.duracion}` : ''}
                     </li>
                     <li>
-                      <span className="icon">📍</span> {evento.sala}
+                      <span className="icon">📍</span> {evento.sala ?? 'Por confirmar'}
                     </li>
                   </ul>
 
                   <div className="card-footer">
                     <div className="price-info">
-                      Desde <strong>{formatearPrecio(evento.precio)}</strong>{' '}
+                      Desde <strong>{formatearPrecio(evento.precioBase)}</strong>{' '}
                       <span>/entrada</span>
                     </div>
                     <div className="card-buttons">
@@ -195,7 +238,7 @@ function Inicio() {
                         Detalles
                       </Link>
 
-                      {evento.estado === 'activo' && (
+                      {evento.estadoVenta === 'EnVenta' && (
                         <button
                           type="button"
                           className="btn-primary-small"

@@ -1,57 +1,73 @@
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
-import { useData } from '../../contexto/useData';
+import CodigoQR from '../../componentes/CodigoQR';
+import { compras } from '../../servicios/compras';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
 import { formatearPrecio } from '../../utilidades/precios';
 import estilos from './confirmacion.module.css';
-
-const LADO_QR = 9;
-
-/*
- * QR simulado: no hay backend ni generador real, así que se dibuja una cuadrícula
- * determinista a partir del código de la entrada. El mismo código da siempre el mismo
- * dibujo, y las tres esquinas se pintan como los marcadores de posición de un QR real.
- */
-function CodigoQR({ codigo }) {
-  const semilla = codigo.split('').reduce((suma, letra) => suma + letra.charCodeAt(0), 0);
-
-  const celdas = Array.from({ length: LADO_QR }, (_, fila) =>
-    Array.from({ length: LADO_QR }, (_, columna) => {
-      const enMarcador =
-        (fila < 3 && columna < 3) || (fila < 3 && columna > 5) || (fila > 5 && columna < 3);
-      if (enMarcador) return true;
-
-      return (semilla * (fila + 1) * (columna + 1) * 31) % 11 > 4;
-    }),
-  ).flat();
-
-  return (
-    <div className={estilos.qr} aria-hidden="true">
-      {celdas.map((rellena, indice) => (
-        <span
-          key={indice}
-          className={rellena ? `${estilos.qrCelda} ${estilos.qrCeldaLlena}` : estilos.qrCelda}
-        />
-      ))}
-    </div>
-  );
-}
 
 /**
  * Confirmación de compra.
  *
  * La compra se busca por su id en la URL (`/confirmacion/:compraId`), así que el enlace
- * sigue funcionando al recargar, algo que el prototipo no hacía: allí la confirmación
- * dependía de `lastPurchase` en memoria y un F5 dejaba la pantalla en blanco.
+ * sigue funcionando al recargar. El servicio de compras (sección 4 de la guía) no expone
+ * un "obtener una compra", así que se busca dentro de misCompras() — es lo mismo que haría
+ * una API real que solo da el historial completo.
  */
 function Confirmacion() {
   const { compraId } = useParams();
-  const { obtenerCompra, obtenerEvento } = useData();
 
-  const compra = obtenerCompra(compraId);
-  const evento = compra ? obtenerEvento(compra.eventoId) : null;
+  const [compra, setCompra] = useState(null);
+  const [evento, setEvento] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!compra || !evento) {
+  useEffect(() => {
+    let cancelado = false;
+
+    async function cargar() {
+      try {
+        const todas = await compras.misCompras();
+        const encontrada = todas.find((c) => c.id === compraId);
+
+        if (!encontrada) {
+          if (!cancelado) setError(true);
+          return;
+        }
+
+        const datosEvento = await serviciosEventos.obtener(encontrada.eventoId);
+
+        if (!cancelado) {
+          setCompra(encontrada);
+          setEvento(datosEvento);
+        }
+      } catch {
+        if (!cancelado) setError(true);
+      } finally {
+        if (!cancelado) setCargando(false);
+      }
+    }
+
+    cargar();
+    return () => {
+      cancelado = true;
+    };
+  }, [compraId]);
+
+  if (cargando) {
+    return (
+      <div className={estilos.pagina}>
+        <Navbar />
+        <div className={estilos.interior}>
+          <p className={estilos.subtitulo}>Cargando…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !compra || !evento) {
     return <Navigate to="/" replace />;
   }
 
@@ -91,7 +107,7 @@ function Confirmacion() {
               </div>
               <div>
                 <p className={estilos.campoEtiqueta}>Hora</p>
-                <p className={estilos.campoValor}>{evento.hora}</p>
+                <p className={estilos.campoValor}>{evento.hora.slice(0, 5)}</p>
               </div>
               <div>
                 <p className={estilos.campoEtiqueta}>Sala</p>
@@ -113,9 +129,7 @@ function Confirmacion() {
                   Total pagado: <span>{formatearPrecio(compra.total)}</span>
                 </p>
               </div>
-              <div className={estilos.qrMarco}>
-                <CodigoQR codigo={compra.codigoEntrada} />
-              </div>
+              <CodigoQR codigo={compra.codigoEntrada} />
             </div>
           </div>
         </article>

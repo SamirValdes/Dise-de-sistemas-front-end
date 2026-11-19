@@ -1,102 +1,60 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from './contextos';
-import { useData } from './useData';
+import { auth } from '../servicios/auth';
 import { esRolAdmin } from '../utilidades/roles';
-
-const CLAVE_SESION = 'luminaria_sesion_v1';
-
-/*
- * Se guarda SOLO el id del usuario, nunca el objeto entero. El mock lleva las
- * contraseñas en claro y no tiene sentido dejarlas escritas en localStorage;
- * además, así el rol o el nombre siempre se leen de la fuente real.
- */
-function leerIdGuardado() {
-  try {
-    const bruto = localStorage.getItem(CLAVE_SESION);
-    if (!bruto) return null;
-
-    const sesion = JSON.parse(bruto);
-    return typeof sesion?.id === 'string' ? sesion.id : null;
-  } catch {
-    return null;
-  }
-}
+import { guardarSesion, limpiarSesion, obtenerSesion } from '../servicios/sesion';
 
 export function AuthProvider({ children }) {
-  const { usuarios, agregarUsuario } = useData();
-
-  // Inicializador perezoso: la sesión está resuelta ya en el primer render, así que
-  // recargar en /panel o /dashboard no expulsa al usuario al login ni un instante.
-  const [usuarioId, setUsuarioId] = useState(leerIdGuardado);
+  // Inicializador perezoso: si hay una sesión guardada, el usuario está disponible
+  // ya en el primer render (sin esperar a la API), igual que hacía la versión local.
+  const [usuario, setUsuario] = useState(() => obtenerSesion()?.usuario ?? null);
 
   // Ruta a la que volver después de iniciar sesión. Se guarda aquí y no en el estado
   // de navegación para que sobreviva a pasar por /registro.
   const [redireccionPendiente, setRedireccionPendiente] = useState(null);
 
-  // El usuario se resuelve contra la lista real. Si el id guardado ya no existe
-  // (por ejemplo porque cambió la semilla), la sesión queda cerrada en vez de fantasma.
-  const usuario = useMemo(
-    () => usuarios.find((candidato) => candidato.id === usuarioId) ?? null,
-    [usuarios, usuarioId],
-  );
-
+  /*
+   * Al montar, si hay un token guardado se refresca el usuario contra GET /api/auth/me:
+   * así el nombre/rol siempre reflejan la base de datos, y si el token ya venció, api.js
+   * limpia la sesión y redirige a /login (aquí solo hace falta vaciar el estado local).
+   */
   useEffect(() => {
-    try {
-      if (usuario) {
-        localStorage.setItem(CLAVE_SESION, JSON.stringify({ id: usuario.id }));
-      } else {
-        localStorage.removeItem(CLAVE_SESION);
-      }
-    } catch {
-      // Sin persistencia la sesión dura lo que dure la pestaña.
-    }
-  }, [usuario]);
+    const sesion = obtenerSesion();
+    if (!sesion?.token) return;
 
-  /** Devuelve el usuario encontrado, o null si las credenciales no son válidas. */
-  const login = useCallback(
-    (correo, contrasena) => {
-      const correoLimpio = correo.trim().toLowerCase();
-      const encontrado = usuarios.find(
-        (candidato) =>
-          candidato.correo.toLowerCase() === correoLimpio && candidato.contrasena === contrasena,
-      );
+    auth
+      .me()
+      .then((datosUsuario) => {
+        setUsuario(datosUsuario);
+        guardarSesion(sesion.token, datosUsuario);
+      })
+      .catch(() => setUsuario(null));
+  }, []);
 
-      if (!encontrado) return null;
+  /** Lanza ErrorApi si las credenciales son inválidas (401) o la cuenta está inactiva (403). */
+  const login = useCallback(async (correo, contrasena) => {
+    const { token, usuario: datosUsuario } = await auth.login(correo, contrasena);
+    guardarSesion(token, datosUsuario);
+    setUsuario(datosUsuario);
+    return datosUsuario;
+  }, []);
 
-      setUsuarioId(encontrado.id);
-      return encontrado;
-    },
-    [usuarios],
-  );
-
-  /** Devuelve { ok: true, usuario } o { ok: false, error }. */
+  /*
+   * El registro (POST /api/auth/registro) crea la cuenta pero no devuelve token, así que
+   * se inicia sesión aparte para que, de cara a quien usa la app, siga siendo un solo paso.
+   * Lanza ErrorApi si el correo ya existe (409) o los datos no son válidos (400).
+   */
   const registrar = useCallback(
-    (nombre, correo, contrasena) => {
-      const correoLimpio = correo.trim().toLowerCase();
-
-      if (usuarios.some((candidato) => candidato.correo.toLowerCase() === correoLimpio)) {
-        return { ok: false, error: 'Este correo electrónico ya está registrado.' };
-      }
-
-      const nuevoUsuario = {
-        id: `u${Date.now()}`,
-        nombre: nombre.trim(),
-        correo: correoLimpio,
-        contrasena,
-        rol: 'usuario',
-        registradoEn: new Date().toISOString(),
-      };
-
-      agregarUsuario(nuevoUsuario);
-      setUsuarioId(nuevoUsuario.id);
-
-      return { ok: true, usuario: nuevoUsuario };
+    async (nombre, correo, contrasena) => {
+      await auth.registro(nombre, correo, contrasena);
+      return login(correo, contrasena);
     },
-    [usuarios, agregarUsuario],
+    [login],
   );
 
   const logout = useCallback(() => {
-    setUsuarioId(null);
+    limpiarSesion();
+    setUsuario(null);
     setRedireccionPendiente(null);
   }, []);
 

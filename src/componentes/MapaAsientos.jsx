@@ -1,47 +1,63 @@
-import {
-  FILAS_VIP,
-  MAX_ASIENTOS,
-  calcularTotales,
-  esAsientoVip,
-  formatearPrecio,
-} from '../utilidades/precios';
+import { MAX_ASIENTOS, calcularTotales, esAsientoVip, formatearPrecio } from '../utilidades/precios';
 import estilos from './MapaAsientos.module.css';
 
-/** Filas D–J: zona general. Las VIP salen de `precios.js`, que es quien define la regla. */
-const FILAS_GENERALES = ['D', 'E', 'F', 'G', 'H', 'I', 'J'];
+function codigoDe(asiento) {
+  return `${asiento.fila}${asiento.numero}`;
+}
 
-const COLUMNAS_VIP = 8;
-const COLUMNAS_GENERALES = 12;
+/** Agrupa la lista plana de asientos de la API en filas ordenadas, con su zona. */
+function agruparEnFilas(asientos) {
+  const porFila = new Map();
 
-function Fila({ fila, columnas, evento, seleccionados, alPulsarAsiento }) {
-  const mitad = columnas / 2;
-  const izquierda = Array.from({ length: mitad }, (_, i) => `${fila}${i + 1}`);
-  const derecha = Array.from({ length: mitad }, (_, i) => `${fila}${mitad + i + 1}`);
+  asientos.forEach((asiento) => {
+    if (!porFila.has(asiento.fila)) {
+      porFila.set(asiento.fila, { fila: asiento.fila, zona: asiento.zona, asientos: [] });
+    }
+    porFila.get(asiento.fila).asientos.push(asiento);
+  });
+
+  const filas = [...porFila.values()];
+  filas.forEach((grupo) => grupo.asientos.sort((a, b) => a.numero - b.numero));
+  filas.sort((a, b) => a.fila.localeCompare(b.fila));
+
+  return filas;
+}
+
+const ETIQUETA_ESTADO = {
+  Vendido: 'vendido',
+  BloqueadoTemporal: 'bloqueado temporalmente',
+};
+
+function Fila({ fila, asientos, seleccionados, alPulsarAsiento }) {
+  const mitad = Math.ceil(asientos.length / 2);
+  const izquierda = asientos.slice(0, mitad);
+  const derecha = asientos.slice(mitad);
 
   const claseAsiento = (asiento) => {
-    if (evento.asientosOcupados.includes(asiento)) return `${estilos.asiento} ${estilos.ocupado}`;
-    if (seleccionados.includes(asiento)) return `${estilos.asiento} ${estilos.elegido}`;
-    if (esAsientoVip(asiento)) return `${estilos.asiento} ${estilos.vip}`;
+    if (asiento.estado !== 'Disponible') return `${estilos.asiento} ${estilos.ocupado}`;
+    if (seleccionados.includes(codigoDe(asiento))) return `${estilos.asiento} ${estilos.elegido}`;
+    if (asiento.zona === 'VIP') return `${estilos.asiento} ${estilos.vip}`;
     return estilos.asiento;
   };
 
-  const renderizarLado = (asientos) => (
+  const renderizarLado = (lista) => (
     <div className={estilos.lado}>
-      {asientos.map((asiento) => {
-        const ocupado = evento.asientosOcupados.includes(asiento);
+      {lista.map((asiento) => {
+        const codigo = codigoDe(asiento);
+        const ocupado = asiento.estado !== 'Disponible';
 
         return (
           <button
-            key={asiento}
+            key={codigo}
             type="button"
             className={claseAsiento(asiento)}
-            onClick={() => alPulsarAsiento(asiento)}
+            onClick={() => alPulsarAsiento(codigo)}
             disabled={ocupado}
-            aria-pressed={seleccionados.includes(asiento)}
+            aria-pressed={seleccionados.includes(codigo)}
             title={
               ocupado
-                ? `Asiento ${asiento} — ocupado`
-                : `Asiento ${asiento}${esAsientoVip(asiento) ? ' (VIP)' : ''}`
+                ? `Asiento ${codigo} — ${ETIQUETA_ESTADO[asiento.estado] ?? 'ocupado'}`
+                : `Asiento ${codigo}${asiento.zona === 'VIP' ? ' (VIP)' : ''}`
             }
           >
             {ocupado ? '×' : ''}
@@ -63,13 +79,20 @@ function Fila({ fila, columnas, evento, seleccionados, alPulsarAsiento }) {
 }
 
 /*
- * Mapa de butacas, puerto de `Teatro Figma/src/components/SeatMap.tsx`.
- * El precio lo calcula `calcularTotales()`, la misma función que usa el checkout,
- * para que el total que se ve aquí y el de la pantalla de pago no puedan discrepar.
+ * Mapa de butacas. Recibe solo los asientos reales del evento (de GET /api/eventos/{id},
+ * que ya trae el mapa completo embebido) y los callbacks que usa — nunca el objeto evento
+ * completo, para no acoplarse a campos que no le corresponden.
+ *
+ * El precio lo calcula calcularTotales(), la misma función que usa el checkout, para que
+ * el total que se ve aquí y el de la pantalla de pago no puedan discrepar.
  */
-function MapaAsientos({ evento, seleccionados, alAlternarAsiento, maxAsientos = MAX_ASIENTOS }) {
-  const { total } = calcularTotales(seleccionados, evento.precio);
+function MapaAsientos({ asientos, precioBase, seleccionados, alAlternarAsiento, maxAsientos = MAX_ASIENTOS }) {
+  const { total } = calcularTotales(seleccionados, precioBase);
   const lleno = seleccionados.length >= maxAsientos;
+
+  const filas = agruparEnFilas(asientos);
+  const filasVip = filas.filter((grupo) => grupo.zona === 'VIP');
+  const filasGenerales = filas.filter((grupo) => grupo.zona !== 'VIP');
 
   return (
     <div className={estilos.mapa}>
@@ -79,12 +102,11 @@ function MapaAsientos({ evento, seleccionados, alAlternarAsiento, maxAsientos = 
 
       <div className={estilos.seccion}>
         <p className={estilos.tituloSeccion}>— Zona VIP —</p>
-        {FILAS_VIP.map((fila) => (
+        {filasVip.map((grupo) => (
           <Fila
-            key={fila}
-            fila={fila}
-            columnas={COLUMNAS_VIP}
-            evento={evento}
+            key={grupo.fila}
+            fila={grupo.fila}
+            asientos={grupo.asientos}
             seleccionados={seleccionados}
             alPulsarAsiento={alAlternarAsiento}
           />
@@ -93,12 +115,11 @@ function MapaAsientos({ evento, seleccionados, alAlternarAsiento, maxAsientos = 
 
       <div className={`${estilos.seccion} ${estilos.seccionGeneral}`}>
         <p className={estilos.tituloSeccionApagado}>— Zona General —</p>
-        {FILAS_GENERALES.map((fila) => (
+        {filasGenerales.map((grupo) => (
           <Fila
-            key={fila}
-            fila={fila}
-            columnas={COLUMNAS_GENERALES}
-            evento={evento}
+            key={grupo.fila}
+            fila={grupo.fila}
+            asientos={grupo.asientos}
             seleccionados={seleccionados}
             alPulsarAsiento={alAlternarAsiento}
           />

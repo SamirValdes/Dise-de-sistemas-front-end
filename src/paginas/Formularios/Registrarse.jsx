@@ -34,7 +34,7 @@ function Registrarse() {
     return <Navigate to={redireccionPendiente ?? rutaInicioDe(usuario)} replace />;
   }
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     setError('');
 
@@ -50,20 +50,17 @@ function Registrarse() {
 
     setCargando(true);
 
-    setTimeout(() => {
-      const resultado = registrar(nombre, correo, contrasena);
-
-      if (!resultado.ok) {
-        setError(resultado.error);
-        setCargando(false);
-        return;
-      }
+    try {
+      const usuarioCreado = await registrar(nombre, correo, contrasena);
 
       // Al registrarse también se respeta el evento que se iba a comprar.
-      const destino = redireccionPendiente ?? rutaInicioDe(resultado.usuario);
+      const destino = redireccionPendiente ?? rutaInicioDe(usuarioCreado);
       limpiarRedireccionPendiente();
       navegar(destino, { replace: true });
-    }, 400);
+    } catch (err) {
+      setError(err.message);
+      setCargando(false);
+    }
   };
 
   return (

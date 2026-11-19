@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
+import CodigoQR from '../../componentes/CodigoQR';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
+import { compras } from '../../servicios/compras';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { etiquetaRol, inicialDe } from '../../utilidades/roles';
 import { formatearFechaCorta, formatearFechaLarga, formatearMarcaTiempo } from '../../utilidades/fechas';
 import { formatearPrecio } from '../../utilidades/precios';
@@ -59,13 +62,37 @@ function EstadoVacio({ icono, titulo, descripcion, accion, alPulsar }) {
  */
 function PanelUsuario() {
   const { usuario } = useAuth();
-  const { comprasDeUsuario, favoritosDeUsuario, alternarFavorito, obtenerEvento, eventos } = useData();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
   const navegar = useNavigate();
   const [pestana, setPestana] = useState('perfil');
 
-  const misCompras = comprasDeUsuario(usuario.id);
+  // Catálogo real de eventos: lo usan tanto "Mis Favoritos" (ids reales desde la Fase 3)
+  // como "Mis Entradas" (compras del servicio simulado, que también guardan ids reales).
+  const [catalogoEventos, setCatalogoEventos] = useState([]);
+  const [misCompras, setMisCompras] = useState([]);
+  const [cargandoEntradas, setCargandoEntradas] = useState(true);
+
+  useEffect(() => {
+    serviciosEventos
+      .listar()
+      .then(setCatalogoEventos)
+      .catch(() => {
+        // Si falla, "Mis Favoritos"/"Mis Entradas" se ven vacíos en vez de romper el panel.
+      });
+  }, []);
+
+  useEffect(() => {
+    compras
+      .misEntradas()
+      .then(setMisCompras)
+      .catch(() => {
+        // Idem: una entrada vacía es mejor que una pantalla rota.
+      })
+      .finally(() => setCargandoEntradas(false));
+  }, []);
+
   const idsFavoritos = favoritosDeUsuario(usuario.id);
-  const misFavoritos = eventos.filter((evento) => idsFavoritos.includes(evento.id));
+  const misFavoritos = catalogoEventos.filter((evento) => idsFavoritos.includes(evento.id));
 
   const pestanas = [
     { id: 'perfil', etiqueta: 'Mi Perfil' },
@@ -90,7 +117,7 @@ function PanelUsuario() {
             <div className={estilos.meta}>
               <span className={estilos.insigniaRol}>{etiquetaRol(usuario)}</span>
               <span className={estilos.miembroDesde}>
-                Miembro desde {formatearMarcaTiempo(usuario.registradoEn)}
+                Miembro desde {formatearMarcaTiempo(usuario.fechaRegistro)}
               </span>
             </div>
           </div>
@@ -132,7 +159,7 @@ function PanelUsuario() {
               <Dato etiqueta="Nombre completo" valor={usuario.nombre} />
               <Dato etiqueta="Correo electrónico" valor={usuario.correo} />
               <Dato etiqueta="Rol" valor={etiquetaRol(usuario)} />
-              <Dato etiqueta="Fecha de registro" valor={formatearMarcaTiempo(usuario.registradoEn)} />
+              <Dato etiqueta="Fecha de registro" valor={formatearMarcaTiempo(usuario.fechaRegistro)} />
             </div>
           </section>
         )}
@@ -140,7 +167,9 @@ function PanelUsuario() {
         {/* Mis Entradas */}
         {pestana === 'entradas' && (
           <div className={estilos.lista}>
-            {misCompras.length === 0 ? (
+            {cargandoEntradas ? (
+              <p className={estilos.datoEtiqueta}>Cargando…</p>
+            ) : misCompras.length === 0 ? (
               <EstadoVacio
                 icono={<IconoEntrada />}
                 titulo="Sin entradas aún"
@@ -150,7 +179,7 @@ function PanelUsuario() {
               />
             ) : (
               misCompras.map((compra) => {
-                const evento = obtenerEvento(compra.eventoId);
+                const evento = catalogoEventos.find((e) => e.id === compra.eventoId);
                 if (!evento) return null;
 
                 return (
@@ -163,7 +192,7 @@ function PanelUsuario() {
                       <span className={estilos.categoria}>{evento.categoria}</span>
                       <h3 className={estilos.entradaTitulo}>{evento.nombre}</h3>
                       <p className={estilos.entradaMeta}>
-                        {formatearFechaLarga(evento.fecha)} — {evento.hora}
+                        {formatearFechaLarga(evento.fecha)} — {evento.hora.slice(0, 5)}
                       </p>
                       <p className={estilos.entradaMeta}>
                         Asientos: <span className={estilos.monoTexto}>{compra.asientos.join(', ')}</span>
@@ -173,9 +202,13 @@ function PanelUsuario() {
                       </p>
                     </div>
 
+                    <div className={estilos.entradaQr}>
+                      <CodigoQR codigo={compra.codigoEntrada} />
+                    </div>
+
                     <div className={estilos.entradaImporte}>
                       <p className={estilos.importeTotal}>{formatearPrecio(compra.total)}</p>
-                      <p className={estilos.importeFecha}>{formatearMarcaTiempo(compra.compradaEn)}</p>
+                      <p className={estilos.importeFecha}>{formatearMarcaTiempo(compra.fecha)}</p>
                     </div>
                   </article>
                 );
@@ -207,7 +240,7 @@ function PanelUsuario() {
                       <span className={estilos.categoria}>{evento.categoria}</span>
                       <h3 className={estilos.favoritoTitulo}>{evento.nombre}</h3>
                       <p className={estilos.favoritoFecha}>{formatearFechaCorta(evento.fecha)}</p>
-                      <p className={estilos.favoritoPrecio}>{formatearPrecio(evento.precio)}</p>
+                      <p className={estilos.favoritoPrecio}>{formatearPrecio(evento.precioBase)}</p>
                     </div>
 
                     <div className={estilos.favoritoAcciones}>

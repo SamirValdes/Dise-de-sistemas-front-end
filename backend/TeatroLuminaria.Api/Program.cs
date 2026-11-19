@@ -33,6 +33,8 @@ builder.Services.AddDbContext<AppDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ServicioJwt>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.ServicioCompras>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.Pasarela.IPasarelaPago, TeatroLuminaria.Api.Compras.Pasarela.AdaptadorPasarelaSimulada>();
 
 // Observer: ProcesadorPagos notifica a todos los IPagoListener registrados cuando un pago
 // se aprueba. El orden de registro es el orden en que se notifican.
