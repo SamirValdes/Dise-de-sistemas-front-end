@@ -90,7 +90,7 @@ function PanelUsuario() {
             <div className={estilos.meta}>
               <span className={estilos.insigniaRol}>{etiquetaRol(usuario)}</span>
               <span className={estilos.miembroDesde}>
-                Miembro desde {formatearMarcaTiempo(usuario.registradoEn)}
+                Miembro desde {formatearMarcaTiempo(usuario.fechaRegistro)}
               </span>
             </div>
           </div>
@@ -132,7 +132,7 @@ function PanelUsuario() {
               <Dato etiqueta="Nombre completo" valor={usuario.nombre} />
               <Dato etiqueta="Correo electrónico" valor={usuario.correo} />
               <Dato etiqueta="Rol" valor={etiquetaRol(usuario)} />
-              <Dato etiqueta="Fecha de registro" valor={formatearMarcaTiempo(usuario.registradoEn)} />
+              <Dato etiqueta="Fecha de registro" valor={formatearMarcaTiempo(usuario.fechaRegistro)} />
             </div>
           </section>
         )}

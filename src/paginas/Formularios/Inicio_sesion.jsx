@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import { useAuth } from '../../contexto/useAuth';
 import { rutaInicioDe } from '../../utilidades/roles';
@@ -22,10 +22,13 @@ const IconoAviso = () => (
 function InicioSesion() {
   const { usuario, login, redireccionPendiente, limpiarRedireccionPendiente } = useAuth();
   const navegar = useNavigate();
+  const [parametros] = useSearchParams();
 
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    parametros.get('sesionVencida') ? 'Tu sesión expiró. Inicia sesión de nuevo.' : '',
+  );
   const [cargando, setCargando] = useState(false);
 
   // Si ya hay sesión, esta pantalla no tiene sentido: se sale a donde corresponda.
@@ -34,25 +37,20 @@ function InicioSesion() {
     return <Navigate to={redireccionPendiente ?? rutaInicioDe(usuario)} replace />;
   }
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     setError('');
     setCargando(true);
 
-    // Pequeña espera para que el estado de carga se perciba, como en el prototipo.
-    setTimeout(() => {
-      const usuarioValidado = login(correo, contrasena);
-
-      if (!usuarioValidado) {
-        setError('Correo o contraseña incorrectos.');
-        setCargando(false);
-        return;
-      }
-
+    try {
+      const usuarioValidado = await login(correo, contrasena);
       const destino = redireccionPendiente ?? rutaInicioDe(usuarioValidado);
       limpiarRedireccionPendiente();
       navegar(destino, { replace: true });
-    }, 400);
+    } catch (err) {
+      setError(err.message);
+      setCargando(false);
+    }
   };
 
   return (
@@ -114,9 +112,8 @@ function InicioSesion() {
 
             <div className={estilos.credentialsBox}>
               <p>Credenciales de prueba:</p>
-              <p className={estilos.credencial}>Usuario: maria@email.com / user123</p>
-              <p className={estilos.credencial}>Admin: admin@teatro.com / admin123</p>
-              <p className={estilos.credencial}>Empleado: roberto@teatro.com / emp123</p>
+              <p className={estilos.credencial}>Cliente: cliente@luminaria.com / Cliente123!</p>
+              <p className={estilos.credencial}>Administrador: admin@luminaria.com / Admin123!</p>
             </div>
           </form>
         </div>

@@ -3,11 +3,18 @@
  *
  * En el prototipo la condición "es administrador" estaba escrita a mano en tres
  * lugares y bastaba con olvidar `empleado` en uno para dejar fuera a Roberto.
+ *
+ * Desde la Fase 2, `usuario` puede venir de dos fuentes a la vez mientras dura la
+ * integración: la API real (rol "Administrador"/"Cliente", el usuario con sesión
+ * iniciada) y el mock local que todavía usa el dashboard para listar cuentas
+ * (rol 'admin'/'empleado'/'usuario', hasta que la Fase 5 lo conecte a la API).
+ * Por eso la comparación es insensible a mayúsculas y acepta ambos vocabularios.
  */
 
-/** Admin y empleado comparten el panel administrativo. */
+/** Admin/Administrador y empleado comparten el panel administrativo. */
 export function esRolAdmin(usuario) {
-  return usuario?.rol === 'admin' || usuario?.rol === 'empleado';
+  const rol = usuario?.rol?.toLowerCase();
+  return rol === 'administrador' || rol === 'admin' || rol === 'empleado';
 }
 
 /** A dónde va cada rol justo después de iniciar sesión. */
@@ -26,12 +33,15 @@ export function inicialDe(usuario) {
 }
 
 const ETIQUETAS_ROL = {
+  administrador: 'Administrador',
   admin: 'Administrador',
   empleado: 'Empleado',
+  cliente: 'Cliente',
   usuario: 'Usuario',
 };
 
 /** Nombre del rol listo para mostrar. */
 export function etiquetaRol(usuario) {
-  return ETIQUETAS_ROL[usuario?.rol] ?? 'Usuario';
+  const rol = usuario?.rol?.toLowerCase();
+  return ETIQUETAS_ROL[rol] ?? 'Usuario';
 }
