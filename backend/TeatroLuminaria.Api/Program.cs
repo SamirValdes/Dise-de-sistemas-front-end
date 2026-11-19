@@ -1,5 +1,8 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using TeatroLuminaria.Api.Datos;
 using TeatroLuminaria.Api.Servicios;
@@ -28,6 +31,28 @@ builder.Services.AddDbContext<AppDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ServicioJwt>();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opciones =>
+    {
+        opciones.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Emisor"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audiencia"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Clave"]!)),
+            ValidateLifetime = true,
+        };
+    });
+
+builder.Services.AddAuthorization(opciones =>
+{
+    opciones.AddPolicy("SoloAdmin", politica => politica.RequireRole("Administrador"));
+    opciones.AddPolicy("Autenticado", politica => politica.RequireAuthenticatedUser());
+});
 
 builder.Services.AddCors(opciones =>
 {
@@ -75,6 +100,7 @@ app.UseSwaggerUI();
 
 app.UseCors(PoliticaCors);
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

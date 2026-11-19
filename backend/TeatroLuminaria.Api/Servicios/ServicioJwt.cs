@@ -8,8 +8,10 @@ namespace TeatroLuminaria.Api.Servicios;
 
 public class ServicioJwt(IConfiguration configuracion)
 {
-    /// <summary>Token con id, correo y rol del usuario. Expira en 2 horas (sección 4 de la guía).</summary>
-    public string GenerarToken(Usuario usuario)
+    public const string ClaimPermiso = "permiso";
+
+    /// <summary>Token con id, correo, rol y permisos del usuario. Expira en 2 horas.</summary>
+    public string GenerarToken(Usuario usuario, IEnumerable<string> permisos)
     {
         var clave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuracion["Jwt:Clave"]!));
         var credenciales = new SigningCredentials(clave, SecurityAlgorithms.HmacSha256);
@@ -21,6 +23,8 @@ public class ServicioJwt(IConfiguration configuracion)
             new(ClaimTypes.Email, usuario.Correo),
             new(ClaimTypes.Role, usuario.Rol.Nombre),
         };
+
+        claims.AddRange(permisos.Select(codigo => new Claim(ClaimPermiso, codigo)));
 
         var token = new JwtSecurityToken(
             issuer: configuracion["Jwt:Emisor"],

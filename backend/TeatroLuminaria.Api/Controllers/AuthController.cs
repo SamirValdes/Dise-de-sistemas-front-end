@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeatroLuminaria.Api.Datos;
@@ -45,6 +47,8 @@ public class AuthController(AppDbContext contexto, ServicioJwt servicioJwt) : Co
         var correo = solicitud.Correo.Trim().ToLowerInvariant();
         var usuario = await contexto.Usuarios
             .Include(u => u.Rol)
+            .ThenInclude(r => r.RolPermisos)
+            .ThenInclude(rp => rp.Permiso)
             .FirstOrDefaultAsync(u => u.Correo == correo);
 
         if (usuario is null || !BCrypt.Net.BCrypt.Verify(solicitud.Contrasena, usuario.ContrasenaHash))
@@ -57,9 +61,25 @@ public class AuthController(AppDbContext contexto, ServicioJwt servicioJwt) : Co
             return StatusCode(StatusCodes.Status403Forbidden, new { mensaje = "La cuenta está inactiva." });
         }
 
-        var token = servicioJwt.GenerarToken(usuario);
+        var permisos = usuario.Rol.RolPermisos.Select(rp => rp.Permiso.Codigo);
+        var token = servicioJwt.GenerarToken(usuario, permisos);
 
         return Ok(new LoginRespuesta(token, MapearUsuario(usuario, usuario.Rol)));
+    }
+
+    [HttpGet("me")]
+    [Authorize(Policy = "Autenticado")]
+    public async Task<IActionResult> Me()
+    {
+        var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var usuario = await contexto.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Id == id);
+
+        if (usuario is null)
+        {
+            return NotFound(new { mensaje = "Usuario no encontrado." });
+        }
+
+        return Ok(MapearUsuario(usuario, usuario.Rol));
     }
 
     private static UsuarioRespuesta MapearUsuario(Usuario usuario, Rol rol) =>
