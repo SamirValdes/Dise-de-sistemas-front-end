@@ -48,9 +48,20 @@ export function formatearPrecio(valor) {
   return `$${Number(valor).toFixed(2)}`;
 }
 
-/** Etiqueta visible del estado de un evento. */
+/** Etiqueta visible del estado de un evento (mock local: dashboard admin, hasta la Fase 5). */
 export function etiquetaEstado(estado) {
   return estado === 'activo' ? 'En venta' : 'Próximamente';
+}
+
+const ETIQUETAS_ESTADO_VENTA = {
+  EnVenta: 'En venta',
+  Proximamente: 'Próximamente',
+  Cerrada: 'Cerrada',
+};
+
+/** Etiqueta visible del `estadoVenta` calculado por la API (GET /api/eventos). */
+export function etiquetaEstadoVenta(estadoVenta) {
+  return ETIQUETAS_ESTADO_VENTA[estadoVenta] ?? estadoVenta;
 }
 
 const ALFABETO_CODIGO = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

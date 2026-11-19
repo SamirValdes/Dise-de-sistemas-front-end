@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../componentes/Navbar';
 import MapaAsientos from '../../componentes/MapaAsientos';
 import { useAuth } from '../../contexto/useAuth';
-import { useData } from '../../contexto/useData';
+import { useFavoritos } from '../../contexto/useFavoritos';
+import { useSeleccion } from '../../contexto/useSeleccion';
+import { eventos as serviciosEventos } from '../../servicios/eventos';
 import { formatearFechaLarga } from '../../utilidades/fechas';
 import {
   MAX_ASIENTOS,
+  RECARGO_VIP,
   calcularTotales,
-  etiquetaEstado,
+  etiquetaEstadoVenta,
   formatearPrecio,
 } from '../../utilidades/precios';
 import estilos from './detalle_evento.module.css';
@@ -25,27 +28,76 @@ function FilaDato({ etiqueta, valor }) {
 /**
  * Detalle de un evento con la selección de asientos.
  *
- * El evento se resuelve desde la URL (`/evento/:id`), no desde un estado en memoria,
- * así que recargar la página o compartir el enlace funciona.
+ * El evento se resuelve desde la URL (`/evento/:id`) contra la API, no desde un estado
+ * en memoria, así que recargar la página o compartir el enlace funciona.
  */
 function DetalleEvento() {
   const { id } = useParams();
   const navegar = useNavigate();
   const { usuario } = useAuth();
-  const { obtenerEvento, asientosSeleccionados, alternarAsiento, limpiarSeleccion, favoritosDeUsuario, alternarFavorito } = useData();
+  const { asientosSeleccionados, alternarAsiento, limpiarSeleccion } = useSeleccion();
+  const { favoritosDeUsuario, alternarFavorito } = useFavoritos();
   const [aviso, setAviso] = useState('');
 
-  const evento = obtenerEvento(id);
+  const [evento, setEvento] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  const [noEncontrado, setNoEncontrado] = useState(false);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    async function cargar() {
+      setCargando(true);
+      setError('');
+      setNoEncontrado(false);
+
+      try {
+        const datos = await serviciosEventos.obtener(id);
+        if (cancelado) return;
+        setEvento(datos);
+        setCargando(false);
+      } catch (err) {
+        if (cancelado) return;
+
+        if (err.status === 404) {
+          setNoEncontrado(true);
+        } else {
+          setError(err.message ?? 'No se pudo cargar el evento.');
+        }
+        setCargando(false);
+      }
+    }
+
+    cargar();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [id]);
 
   // Un id inexistente en la URL devuelve a la cartelera en vez de dejar la pantalla en blanco.
-  if (!evento) {
+  if (noEncontrado) {
     return <Navigate to="/" replace />;
+  }
+
+  if (cargando || error || !evento) {
+    return (
+      <div className={estilos.pagina}>
+        <Navbar />
+        <div className={estilos.interior}>
+          <p className={estilos.sinopsis}>
+            {error || (cargando ? 'Cargando evento…' : 'No se pudo cargar el evento.')}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const seleccionados = asientosSeleccionados(evento.id);
   const esFavorito = usuario ? favoritosDeUsuario(usuario.id).includes(evento.id) : false;
-  const { total } = calcularTotales(seleccionados, evento.precio);
-  const enVenta = evento.estado === 'activo';
+  const { total } = calcularTotales(seleccionados, evento.precioBase);
+  const enVenta = evento.estadoVenta === 'EnVenta';
 
   const alPulsarAsiento = (asiento) => {
     const aceptado = alternarAsiento(evento.id, asiento);
@@ -75,7 +127,7 @@ function DetalleEvento() {
         </Link>
 
         <div className={estilos.portadaAcciones}>
-          <span className={estilos.etiquetaEstado}>{etiquetaEstado(evento.estado)}</span>
+          <span className={estilos.etiquetaEstado}>{etiquetaEstadoVenta(evento.estadoVenta)}</span>
           {usuario && (
             <button
               type="button"
@@ -110,25 +162,25 @@ function DetalleEvento() {
             <section className={estilos.tarjeta}>
               <h2 className={estilos.tarjetaTitulo}>Información</h2>
               <FilaDato etiqueta="Fecha" valor={formatearFechaLarga(evento.fecha)} />
-              <FilaDato etiqueta="Hora" valor={evento.hora} />
-              <FilaDato etiqueta="Duración" valor={evento.duracion} />
-              <FilaDato etiqueta="Sala" valor={evento.sala} />
+              <FilaDato etiqueta="Hora" valor={evento.hora.slice(0, 5)} />
+              <FilaDato etiqueta="Duración" valor={evento.duracion ?? 'Por confirmar'} />
+              <FilaDato etiqueta="Sala" valor={evento.sala ?? 'Por confirmar'} />
               <FilaDato etiqueta="Categoría" valor={evento.categoria} />
-              <FilaDato etiqueta="Fin de venta" valor={formatearFechaLarga(evento.finVenta)} />
+              <FilaDato etiqueta="Fin de venta" valor={formatearFechaLarga(evento.fechaFinVenta)} />
             </section>
 
             <section className={estilos.tarjeta}>
               <h2 className={estilos.tarjetaTitulo}>Precios</h2>
               <div className={estilos.filaPrecio}>
                 <span className={estilos.filaEtiqueta}>Zona General (D–J)</span>
-                <span className={estilos.precioValor}>{formatearPrecio(evento.precio)}</span>
+                <span className={estilos.precioValor}>{formatearPrecio(evento.precioBase)}</span>
               </div>
               <div className={estilos.filaPrecio}>
                 <span className={estilos.filaEtiqueta}>
                   Zona VIP (A–C)
-                  <span className={estilos.recargo}>×1.5</span>
+                  <span className={estilos.recargo}>×{RECARGO_VIP}</span>
                 </span>
-                <span className={estilos.precioValor}>{formatearPrecio(evento.precio * 1.5)}</span>
+                <span className={estilos.precioValor}>{formatearPrecio(evento.precioBase * RECARGO_VIP)}</span>
               </div>
               <p className={estilos.notaPrecio}>
                 Al confirmar la compra se añade un 5% de cargo por servicio.
@@ -137,7 +189,7 @@ function DetalleEvento() {
 
             <section className={estilos.tarjeta}>
               <h2 className={estilos.tarjetaTitulo}>Sobre el espectáculo</h2>
-              <p className={estilos.sinopsis}>{evento.descripcionLarga}</p>
+              <p className={estilos.sinopsis}>{evento.informacionAdicional}</p>
             </section>
           </aside>
 
@@ -185,13 +237,16 @@ function DetalleEvento() {
                 <div className={estilos.invitacion}>
                   <h3 className={estilos.invitacionTitulo}>Venta no disponible</h3>
                   <p className={estilos.invitacionTexto}>
-                    La venta de entradas todavía no está abierta para este evento.
+                    {evento.estadoVenta === 'Proximamente'
+                      ? 'La venta de entradas todavía no está abierta para este evento.'
+                      : 'La venta de entradas para este evento ya cerró.'}
                   </p>
                 </div>
               ) : (
                 <>
                   <MapaAsientos
-                    evento={evento}
+                    asientos={evento.asientos}
+                    precioBase={evento.precioBase}
                     seleccionados={seleccionados}
                     alAlternarAsiento={alPulsarAsiento}
                   />

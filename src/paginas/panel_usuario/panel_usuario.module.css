@@ -274,6 +274,13 @@
   color: var(--acento);
 }
 
+.entradaQr {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 1.25rem 0;
+}
+
 .entradaImporte {
   display: flex;
   flex-direction: column;
