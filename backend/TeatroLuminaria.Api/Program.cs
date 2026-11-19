@@ -33,6 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ServicioJwt>();
+builder.Services.AddScoped<TeatroLuminaria.Api.Compras.ServicioCompras>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
