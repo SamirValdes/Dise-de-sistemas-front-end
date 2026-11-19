@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using TeatroLuminaria.Api.Datos;
+using TeatroLuminaria.Api.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +10,24 @@ const string PoliticaCors = "FrontendCors";
 
 builder.Services.AddControllers();
 
+builder.Services.Configure<ApiBehaviorOptions>(opciones =>
+{
+    // Convención de la guía: errores siempre en JSON {"mensaje": "..."}.
+    opciones.InvalidModelStateResponseFactory = contexto =>
+    {
+        var mensaje = contexto.ModelState.Values
+            .SelectMany(valor => valor.Errors)
+            .Select(error => error.ErrorMessage)
+            .FirstOrDefault() ?? "Datos inválidos.";
+
+        return new BadRequestObjectResult(new { mensaje });
+    };
+});
+
 builder.Services.AddDbContext<AppDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ServicioJwt>();
 
 builder.Services.AddCors(opciones =>
 {
