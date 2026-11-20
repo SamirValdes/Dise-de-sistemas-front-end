@@ -14,3 +14,14 @@ public record CompraRespuesta(
     decimal Total,
     string Estado,
     List<int> AsientoIds);
+
+public record CompraHistorialRespuesta(
+    int Id,
+    int EventoId,
+    string EventoNombre,
+    DateTime Fecha,
+    decimal Subtotal,
+    decimal CargoServicio,
+    decimal Total,
+    string Estado,
+    int CantidadAsientos);

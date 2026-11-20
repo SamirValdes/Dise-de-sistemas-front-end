@@ -242,6 +242,7 @@ public class EventosController(AppDbContext contexto) : ControllerBase
             .OrderBy(a => a.Fila)
             .ThenBy(a => a.Numero)
             .Select(a => new AsientoRespuesta(
+                a.Id,
                 a.Fila,
                 a.Numero,
                 a.Zona.ToString(),

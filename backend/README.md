@@ -75,11 +75,15 @@ Corre en `http://localhost:3000` (puerto fijado en el script `dev` de `package.j
 | GET | `/api/auth/me` | Autenticado | Datos del usuario del token |
 | GET | `/api/usuarios` | Administrador | Nombre, correo, fecha de registro y estado de todos los usuarios |
 | GET | `/api/eventos` | Público | Solo eventos `Publicado` (el administrador también ve `Borrador`). Filtros opcionales por query string: `categoria`, `texto` (busca en nombre/descripción), `desde`, `hasta` (fecha del evento). Incluye `estadoVenta` calculado (`EnVenta` / `Proximamente` / `Cerrada`) y disponibilidad (`asientosDisponibles` / `asientosTotales`) |
-| GET | `/api/eventos/{id}` | Público | Detalle del evento con el mapa de asientos completo (fila, número, zona, estado y precio calculado). `404` si es `Borrador` y quien pregunta no es administrador |
+| GET | `/api/eventos/{id}` | Público | Detalle del evento con el mapa de asientos completo (`id`, fila, número, zona, estado y precio calculado; el `id` es el que usan `/api/compras/reservar` y `/api/compras`). `404` si es `Borrador` y quien pregunta no es administrador |
 | POST | `/api/eventos` | Administrador | Crea el evento (queda en `Borrador`) y genera sus asientos según `filasVip/columnasVip/filasGenerales/columnasGenerales` |
 | PUT | `/api/eventos/{id}` | Administrador | Edita los datos del evento (no el layout de asientos, para no desincronizarlo de los ya generados) |
 | PATCH | `/api/eventos/{id}/estado` | Administrador | Cambia el estado (`Borrador` / `Publicado` / `Cancelado` / `Finalizado`) |
 | DELETE | `/api/eventos/{id}` | Administrador | `409` si el evento ya tiene compras; si no, borra el evento y en cascada sus asientos y favoritos |
+| POST | `/api/compras/reservar` | Autenticado | Bloquea `asientoIds` (ids numéricos) de un evento por 5 minutos a nombre del usuario. No hay un recurso de "reserva" aparte: el bloqueo vive en el propio asiento (`usuario` + `bloqueadoHasta`). `409` si alguno está vendido o bloqueado por otra persona |
+| POST | `/api/compras` | Autenticado | Cobra (pasarela simulada) y confirma la compra de `asientoIds` ya reservados por el mismo usuario. `simularRechazo: true` fuerza un pago rechazado (`402`). `409` si algún asiento no está reservado por este usuario o su bloqueo ya venció (se distingue por el mensaje, no por el código). Al aprobarse, genera una `Entrada` por asiento con su `CodigoQr` (patrón Observer + Builder, ver `DOCUMENTACION_COMPRA.md`) |
+| GET | `/api/compras/mias` | Autenticado | Historial de compras del usuario (evento, fecha, totales, estado, cantidad de asientos). `cantidadAsientos` cuenta las entradas emitidas, así que una compra `Rechazada`/`Pendiente` muestra 0 |
+| GET | `/api/entradas/mias` | Autenticado | Entradas del usuario (evento, asiento, `codigoUnico`, `codigoQr` en PNG base64), separadas en `proximas`/`pasadas` según la fecha del evento |
 
 Convenciones: errores en JSON `{"mensaje": "..."}`; los enums se serializan como texto (ej. `"Publicado"`, no un número); el JWT expira en 2 horas y lleva el id, correo, rol y permisos del usuario.
 
@@ -205,7 +209,7 @@ erDiagram
     ASIENTO ||--o| ENTRADA : asociado
 ```
 
-Nota: este es el modelo **completo y definitivo** de la base (13 tablas incluyendo `RolPermiso` y `__EFMigrationsHistory`, 11 tablas de dominio). Esta entrega implementa autenticación, roles y CRUD de eventos; `Compra`, `Pago`, `Entrada`, `Favorito` y `Notificacion` ya existen en la base pero sus endpoints los implementan otros compañeros (compra/pago/QR/favoritos/notificaciones quedan fuera de esta entrega).
+Nota: este es el modelo **completo y definitivo** de la base (13 tablas incluyendo `RolPermiso` y `__EFMigrationsHistory`, 11 tablas de dominio). Esta entrega implementa autenticación, roles, CRUD de eventos, y compra/pago/entradas con QR (`/api/compras/*`, `/api/entradas/*`, ver `DOCUMENTACION_COMPRA.md`); `Favorito` y `Notificacion` ya existen en la base pero sus endpoints los implementan otros compañeros.
 
 ## Seed
 
