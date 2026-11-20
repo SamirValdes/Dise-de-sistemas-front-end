@@ -19,10 +19,10 @@
 
 
 # Entregables 
-![Entregable 1](https://drive.google.com/file/d/1h8DqxQ1Ge1_3Hh6tAiIboE43n_J5pN7b/view?usp=sharing)
-![Entregable 2](https://drive.google.com/file/d/1Gr0gSRLfSWrAb5n8OY3vEKbFFGpv8s2F/view?usp=sharing)
-![Entregable 3](https://drive.google.com/file/d/1RSf7xWhe72qY5QO5zP3fabDa0opzVa3l/view?usp=sharing)
+[Entregable 1](https://drive.google.com/file/d/1h8DqxQ1Ge1_3Hh6tAiIboE43n_J5pN7b/view?usp=sharing)
+[Entregable 2](https://drive.google.com/file/d/1Gr0gSRLfSWrAb5n8OY3vEKbFFGpv8s2F/view?usp=sharing)
+[Entregable 3](https://drive.google.com/file/d/1RSf7xWhe72qY5QO5zP3fabDa0opzVa3l/view?usp=sharing)
 
 # PDF Auditoria IA Claude
 
-![Auditoria IA para Lab 3](https://drive.google.com/file/d/1sYB0uHqmA6SS7goO2D4rAjc96T_6-15k/view?usp=sharing)
+[Auditoria IA para Lab 3](https://drive.google.com/file/d/1sYB0uHqmA6SS7goO2D4rAjc96T_6-15k/view?usp=sharing)
